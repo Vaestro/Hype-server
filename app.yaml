@@ -3,10 +3,10 @@ vm: true
 
 env_variables:
   # --REQUIRED--
-  DATABASE_URI: mongodb://localhost:27017/dev
-  APP_ID: <your-app-id>
-  MASTER_KEY: <your-master-key>
+  DATABASE_URI: 'mongodb://hypeking:theHypel1st@ds017165.mlab.com:17165/hypelist_dev'
+  APP_ID: '5t3F1S3wKnVGIKHob1Qj0Je3sygnFiwqAu6PP400'
+  MASTER_KEY: 'NUwTuaL9aqcGkgFc0MUrng4SdQz9RPDcEudMvUGZ'
   # --OPTIONAL--
   # FILE_KEY: <your-file-key>
   # PARSE_MOUNT: /parse
-  # CLOUD_CODE_MAIN:  
+  # CLOUD_CODE_MAIN:
