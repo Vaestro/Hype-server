@@ -26,7 +26,7 @@ var api = new ParseServer({
 
 var dashboard = new ParseDashboard({
     "apps": [{
-        "serverURL": "https://07a5246d.ngrok.io/parse",
+        "serverURL": process.env.SERVER_URL,
         "appId": process.env.APP_ID,
         "masterKey": process.env.MASTER_KEY,
         "appName": 'hypelist_dev'
