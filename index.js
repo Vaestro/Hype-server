@@ -26,10 +26,14 @@ var api = new ParseServer({
 
 var dashboard = new ParseDashboard({
     "apps": [{
-        "serverURL": process.env.SERVER_URL,
+        "serverURL": process.env.SERVER_URL || 'http://localhost:1337/parse',
         "appId": process.env.APP_ID,
         "masterKey": process.env.MASTER_KEY,
-        "appName": 'hypelist_dev'
+        "javascriptKey": process.env.JAVASCRIPT_KEY,
+        "restKey": process.env.REST_KEY,
+        "appName": 'hypelist_dev',
+        production: false
+
     }],
     "users": [{
         "user": "hypeking",
