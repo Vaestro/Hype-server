@@ -37,9 +37,9 @@ module.exports.CheckInManager = function CheckInManager(guestId, senderId, guest
     var credits = sender.get("credits");
     console.log('credits ' + credits);
     credits += 5;
-    Parse.Cloud.useMasterKey();
+    // Parse.Cloud.useMasterKey();
     sender.set("credits", credits);
-    return sender.save();
+    return sender.save({ useMasterKey: true });
   };
 
 
@@ -87,7 +87,7 @@ module.exports.CheckInManager = function CheckInManager(guestId, senderId, guest
     var queryGuestlist = new Parse.Query("Guestlist")
                                         .equalTo('objectId', this.guestlistId);
 
-    return queryGuestlist.first();
+    return queryGuestlist.first({ useMasterKey: true });
   };
 
 
@@ -103,7 +103,7 @@ module.exports.CheckInManager = function CheckInManager(guestId, senderId, guest
     var queryEvent = new Parse.Query("Event")
                               .equalTo('objectId', eventId);
 
-    return queryEvent.first();
+    return queryEvent.first({ useMasterKey: true });
   };
 
 

@@ -32,7 +32,7 @@ module.exports.GuestlistTicketManager = function GuestlistTicketManager(guestlis
     var queryGuestlistTickets = new Parse.Query("GuestlistTicket")
       .equalTo('guestlist', guestlist);
 
-    return queryGuestlistTickets.find();
+    return queryGuestlistTickets.find({ useMasterKey: true });
   }
 
   this.generateGuestlistTicketForSender = function(guestlistOwnerInvite) {
@@ -55,6 +55,6 @@ module.exports.GuestlistTicketManager = function GuestlistTicketManager(guestlis
       return Parse.Promise.as([]);
     }
 
-    return guestlistTicket.save();
+    return guestlistTicket.save({ useMasterKey: true });
   };
 };

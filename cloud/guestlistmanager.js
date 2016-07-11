@@ -36,7 +36,7 @@ module.exports.GuestlistManager = function GuestlistManager(guestPhoneNumbers, g
     var queryUser = new Parse.Query(Parse.User)
       .containedIn("phoneNumber", this.guestPhoneNumbers);
     console.log('queryUser ' + JSON.stringify(queryUser));
-    return queryUser.find();
+    return queryUser.find({ useMasterKey: true });
   };
 
   /**

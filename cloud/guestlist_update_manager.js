@@ -27,7 +27,7 @@ module.exports.GuestlistUpdateManager = function GuestlistUpdateManager (eventId
 
     console.log('query for owner ' + JSON.stringify(queryUser));
 
-    return queryUser.first();
+    return queryUser.first({ useMasterKey: true });
   };
 
 
@@ -103,7 +103,7 @@ module.exports.GuestlistUpdateManager = function GuestlistUpdateManager (eventId
                               .include('host');
 
     console.log('query for event ' + JSON.stringify(queryEvent));
-    return queryEvent.first();
+    return queryEvent.first({ useMasterKey: true });
   };
 
 

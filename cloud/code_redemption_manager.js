@@ -20,7 +20,7 @@ module.exports.CodeRedemptionManager = function CodeRedemptionManager(guestId, p
                                       .equalTo('active', true);
 
 
-    return queryPromotionCode.first().then(null, function(error) {
+    return queryPromotionCode.first({ useMasterKey: true }).then(null, function(error) {
       console.log('There was an error querying ' + JSON.stringify(error));
       return Parse.Promise.error('An error occured. Please try again.');
     });
@@ -44,7 +44,7 @@ module.exports.CodeRedemptionManager = function CodeRedemptionManager(guestId, p
                                            .equalTo('guest', guest)
                                            .equalTo('promotionCode', activePromotionCode);
 
-    return queryPromotionCodeEntry.first().then(null, function(error) {
+    return queryPromotionCodeEntry.first({ useMasterKey: true }).then(null, function(error) {
       console.log('There was an error querying ' + JSON.stringify(error));
       return Parse.Promise.error('An error occured. Please try again.');
     });
@@ -66,7 +66,7 @@ module.exports.CodeRedemptionManager = function CodeRedemptionManager(guestId, p
     promotionCodeEntry.set('promotionCode', this.activePromotionCode);
     promotionCodeEntry.set('date', new Date());
 
-    return promotionCodeEntry.save();
+    return promotionCodeEntry.save({ useMasterKey: true });
   };
 
   this.creditUser = function (promotionCodeEntry) {
@@ -80,7 +80,7 @@ module.exports.CodeRedemptionManager = function CodeRedemptionManager(guestId, p
       console.log(JSON.stringify(this.activePromotionCode));
 
       guest.increment('credits', this.activePromotionCode.get('creditAmount'));
-      return guest.save();
+      return guest.save({ useMasterKey: true });
     }
   };
 };

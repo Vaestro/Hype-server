@@ -251,7 +251,7 @@ Parse.Cloud.define("assignGuestToGuestlistInvite", function(request, response) {
 
 Parse.Cloud.define("redeemReferralCode", function(request, response) {
 
-    Parse.Cloud.useMasterKey();
+    // Parse.Cloud.useMasterKey();
 
     var guestId = request.user.id;
     var promotionCode = request.params.referralCode.toUpperCase();
@@ -279,7 +279,7 @@ Parse.Cloud.define("redeemReferralCode", function(request, response) {
 
 Parse.Cloud.define('validateTicket', function(request, response) {
 
-    Parse.Cloud.useMasterKey();
+    // Parse.Cloud.useMasterKey();
 
     var guestlistInvite, event;
 
@@ -298,7 +298,7 @@ Parse.Cloud.define('validateTicket', function(request, response) {
             .include('event')
             .include('event.location');
 
-        return guestlistInviteQuery.first().then(null, function(error) {
+        return guestlistInviteQuery.first({ useMasterKey: true }).then(null, function(error) {
             console.log('There was an error querying ' + JSON.stringify(error));
             return Parse.Promise.error('This ticket has already been scanned.');
         });
@@ -315,7 +315,7 @@ Parse.Cloud.define('validateTicket', function(request, response) {
         var userQuery = new Parse.Query(Parse.User);
         userQuery.equalTo("objectId", request.params.guestId);
 
-        return userQuery.first().then(null, function(error) {
+        return userQuery.first({ useMasterKey: true }).then(null, function(error) {
             return Parse.Promise.error('There was an issue retrieving user data.Please try scanning again');
         });
     }).then(function(guest) {
@@ -352,7 +352,7 @@ Parse.Cloud.define('validateTicket', function(request, response) {
 
 Parse.Cloud.define('createStripeCustomer', function(request, response) {
 
-    Parse.Cloud.useMasterKey();
+    // Parse.Cloud.useMasterKey();
 
     var customer;
 
@@ -375,7 +375,7 @@ Parse.Cloud.define('createStripeCustomer', function(request, response) {
         user.id = request.user.id;
         user.set("stripeCustomerId", customer.id)
 
-        return user.save().then(null, function(error) {
+        return user.save({ useMasterKey: true }).then(null, function(error) {
             console.log("Update User with stripe customer id failed.Error: " + error);
             return Parse.Promise.error('An error has occurred updating your user information. Please try again');
         });
@@ -398,7 +398,7 @@ Parse.Cloud.define('completeOrder', function(request, response) {
 
     var completedTransaction, event, guestlist, customer, guestlistInvite, admissionOption;
 
-    Parse.Promise.as({ useMasterKey: true }).then(function() {
+    Parse.Promise.as().then(function() {
 
         if (request.params.amount >= 0.5) {
             return Stripe.Charges.create({
@@ -433,7 +433,7 @@ Parse.Cloud.define('completeOrder', function(request, response) {
         completedTransaction.set("admissionOption", admissionOption);
         // completedTransaction.set("stripePurchaseId", purchase.id);
 
-        return completedTransaction.save().then(null, function(error) {
+        return completedTransaction.save({ useMasterKey: true }).then(null, function(error) {
             console.log('There was an error saving the completed transaction. Error: ' + JSON.stringify(error));
             return Parse.Promise.error("There was an error storing your transaction. Please contact us through chat to resolve this issue as quick as possible.");
         });
@@ -445,7 +445,7 @@ Parse.Cloud.define('completeOrder', function(request, response) {
         guestlist.set("date", new Date());
         guestlist.set("admissionOption", admissionOption);
 
-        return guestlist.save().then(null, function(error) {
+        return guestlist.save({ useMasterKey: true }).then(null, function(error) {
             console.log("Saving guestlist failed. Error: " + JSON.stringify(error));
             return Parse.Promise.error("There was an error generating your guestlist. Please contact us through chat to resolive this issue as quickly as possible.");
         });
@@ -479,7 +479,7 @@ Parse.Cloud.define('completeOrder', function(request, response) {
 
         guestlistInvite.set("qrCode", parseFile);
 
-        return guestlistInvite.save().then(null, function(error) {
+        return guestlistInvite.save({ useMasterKey: true }).then(null, function(error) {
             console.log("Saving guestlist invite failed. Error: " + JSON.stringify(error));
             return Parse.Promise.error("There was an error generating your guestlist invite. Please contact us through chat to resolive this issue as quickly as possible.");
         });
@@ -496,7 +496,7 @@ Parse.Cloud.define('completeOrder', function(request, response) {
 Parse.Cloud.define('completeOrderForInvite', function(request, response) {
 
 
-    Parse.Cloud.useMasterKey();
+    // Parse.Cloud.useMasterKey();
 
     var guestlistInvite;
     Parse.Promise.as().then(function() {
@@ -534,7 +534,7 @@ Parse.Cloud.define('completeOrderForInvite', function(request, response) {
         completedTransaction.set("admissionOption", admissionOption);
         // completedTransaction.set("stripePurchaseId", purchase.id);
 
-        return completedTransaction.save().then(null, function(error) {
+        return completedTransaction.save({ useMasterKey: true }).then(null, function(error) {
             console.log('There was an error saving the completed transaction. Error: ' + error);
             return Parse.Promise.error("There was an error storing your transaction. Please contact us through chat to resolve this issue as quick as possible.");
         });
@@ -559,7 +559,7 @@ Parse.Cloud.define('completeOrderForInvite', function(request, response) {
         guestlistInvite.set("qrCode", parseFile);
         guestlistInvite.set("response", 1);
 
-        return guestlistInvite.save().then(null, function(error) {
+        return guestlistInvite.save({ useMasterKey: true }).then(null, function(error) {
             console.log("Updating guestlist invite failed. Error: " + error);
             return Parse.Promise.error("There was an error generating your QR code. Please contact us through chat to resolive this issue as quickly as possible.");
         });
@@ -573,7 +573,7 @@ Parse.Cloud.define('completeOrderForInvite', function(request, response) {
 /***** retrieving payment info ***/
 Parse.Cloud.define('retrievePaymentInfo', function(request, response) {
 
-    Parse.Cloud.useMasterKey();
+    // Parse.Cloud.useMasterKey();
 
     Parse.Promise.as().then(function() {
 
@@ -602,7 +602,7 @@ Parse.Cloud.define('retrievePaymentInfo', function(request, response) {
 /***** removing credit card ****/
 Parse.Cloud.define('removeCardInfo', function(request, response) {
 
-    Parse.Cloud.useMasterKey();
+    // Parse.Cloud.useMasterKey();
 
     Parse.Promise.as().then(function() {
 
@@ -620,7 +620,7 @@ Parse.Cloud.define('removeCardInfo', function(request, response) {
 
         customer.unset("stripeCustomerId");
 
-        return customer.save().then(null, function(error) {
+        return customer.save({ useMasterKey: true }).then(null, function(error) {
             console.log('there was an error unsetting the user ' + JSON.stringify(error));
             return Parse.Promise.error('There was an error');
         });
@@ -633,7 +633,7 @@ Parse.Cloud.define('removeCardInfo', function(request, response) {
 
 /******** creating reservations *****/
 Parse.Cloud.define('createReservation', function(request, response) {
-    Parse.Cloud.useMasterKey();
+    // Parse.Cloud.useMasterKey();
 
     var guestlistInvite, event, customer, savedGuestlistInvite;
 
@@ -654,7 +654,7 @@ Parse.Cloud.define('createReservation', function(request, response) {
         guestlist.set("date", new Date());
         guestlist.set("admissionOption", admissionOption);
 
-        return guestlist.save().then(null, function(error) {
+        return guestlist.save({ useMasterKey: true }).then(null, function(error) {
             console.log("Saving guestlist failed. Error: " + JSON.stringify(error));
             return Parse.Promise.error("There was an error generating your guestlist. Please contact us through chat to resolive this issue as quickly as possible.");
         });
@@ -672,7 +672,7 @@ Parse.Cloud.define('createReservation', function(request, response) {
         guestlistInvite.set("date", new Date(Date.parse(request.params.eventTime)));
         guestlistInvite.set("didOpen", false);
 
-        return guestlistInvite.save().then(null, function(error) {
+        return guestlistInvite.save({ useMasterKey: true }).then(null, function(error) {
             console.log("Saving guestlistInvite failed. Error: " + JSON.stringify(error));
             return Parse.Promise.error("There was an error generating your guestlist. Please contact us through chat to resolive this issue as quickly as possible.");
         });
@@ -730,7 +730,7 @@ Parse.Cloud.define('createReservation', function(request, response) {
 Parse.Cloud.afterSave("GuestlistInvite", function(request) {
 
     if (request.object.existed() && request.object.get("checkInStatus")) {
-        Parse.Cloud.useMasterKey();
+        // Parse.Cloud.useMasterKey();
         var guest, creditPayout;
         Parse.Promise.as().then(function() {
 
@@ -754,7 +754,7 @@ Parse.Cloud.afterSave("GuestlistInvite", function(request) {
 
             guest.increment('credits', event.get("creditsPayout"));
 
-            return guest.save().then(null, function(error) {
+            return guest.save({ useMasterKey: true }).then(null, function(error) {
                 console.log('there was an error saving the sender ' + JSON.stringify(error));
             });
         }).then(function(savedGuest) {
@@ -785,7 +785,7 @@ Parse.Cloud.define('hypeLaunchPartyPurchase', function(request, response) {
     var customerName = request.params.customerName;
 
 
-    Parse.Cloud.useMasterKey();
+    // Parse.Cloud.useMasterKey();
 
     var customer, guestlist, event, image, parseFile;
 
@@ -797,7 +797,7 @@ Parse.Cloud.define('hypeLaunchPartyPurchase', function(request, response) {
         user.set("password", "dummyaccount");
 
 
-        return user.save().then(null, function(error) {
+        return user.save({ useMasterKey: true }).then(null, function(error) {
             console.log('there was an error creating the user ' + JSON.stringify(error));
             return Parse.Promise.error('Error generating the user.');
         });
@@ -816,7 +816,7 @@ Parse.Cloud.define('hypeLaunchPartyPurchase', function(request, response) {
         guestlist.set("date", new Date());
         guestlist.set("admissionOption", admissionOption);
 
-        return guestlist.save().then(null, function(error) {
+        return guestlist.save({ useMasterKey: true }).then(null, function(error) {
             console.log("Saving guestlist failed. Error: " + JSON.stringify(error));
             return Parse.Promise.error("There was an error generating your guestlist. Please contact us through chat to resolive this issue as quickly as possible.");
         });
@@ -852,7 +852,7 @@ Parse.Cloud.define('hypeLaunchPartyPurchase', function(request, response) {
 
         guestlistInvite.set("qrCode", parseFile);
 
-        return guestlistInvite.save().then(null, function(error) {
+        return guestlistInvite.save({ useMasterKey: true }).then(null, function(error) {
             console.log("Saving guestlist invite failed. Error: " + JSON.stringify(error));
             return Parse.Promise.error("There was an error generating your guestlist invite. Please contact us through chat to resolive this issue as quickly as possible.");
         });
