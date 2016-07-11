@@ -1,12 +1,10 @@
-var mandrillKey = 'bl1nnYhj1De57xe-NkYScQ';
-Mandrill = require('mandrill')
-Mandrill.initialize(mandrillKey);
+var mandrill = require('mandrill-api/mandrill');
+var mandrill_client = new mandrill.Mandrill('bl1nnYhj1De57xe');
 
-Mandrill.sendTemplate = function(templateName, templateContent, message, async, ipPool, sendAt) {
+mandrill_client.sendTemplate = function(templateName, templateContent, message, async, ipPool, sendAt) {
     request = {
 
     }
-    request.key = mandrillKey;
 
     request.template_name = templateName;
     request.template_content = templateContent;
@@ -31,4 +29,4 @@ Mandrill.sendTemplate = function(templateName, templateContent, message, async, 
     });
 };
 
-module.exports = Mandrill
+module.exports = mandrill_client

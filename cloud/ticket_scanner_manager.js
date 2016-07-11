@@ -1,5 +1,5 @@
 var _ = require('underscore');
-var moment = require('cloud/moment.js');
+var moment = require('moment');
 var queryInstallation = new Parse.Query(Parse.Installation);
 var GuestlistTicket = Parse.Object.extend("GuestlistTicket");
 var Event = Parse.Object.extend("Event");
@@ -13,12 +13,12 @@ module.exports.TicketScannerManager = function TicketScannerManager(guestlistTic
 
   /**
    * @params: guestlistTicketQuery
-   * @description: queries for a 
+   * @description: queries for a
    * @return: returns a query for a guestlist as a promise
    */
   this.findGuestlistInviteById = function() {
 
-  
+
     console.log('guestlistTicketId is ' + this.guestlistTicketId);
 
     var guestlistTicket = new GuestlistTicket();

@@ -15,12 +15,20 @@
     "parse-server": "~2.2.12",
     "parse-dashboard": "~1.0.14",
     "dotenv": "^2.0.0"
-
   },
   "scripts": {
     "start": "node index.js"
   },
   "engines": {
     "node": ">=4.3"
+  },
+  "devDependencies": {
+    "mailgun-js": "^0.7.11",
+    "mandrill-api": "^1.0.45",
+    "mixpanel": "^0.4.0",
+    "moment": "^2.14.1",
+    "stripe": "^4.7.0",
+    "twilio": "^2.9.1",
+    "underscore": "^1.8.3"
   }
 }

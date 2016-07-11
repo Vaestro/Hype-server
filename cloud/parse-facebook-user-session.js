@@ -170,7 +170,7 @@ var parseFacebookUserSession = function(params) {
      */
     return function(req, res, next) {
         // If the user is already logged in, there's nothing to do.
-        if (Parse.User.current()) {
+        if (request.user) {
             return next();
         }
 

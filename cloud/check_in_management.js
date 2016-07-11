@@ -1,5 +1,5 @@
 var _ = require('underscore');
-var moment = require('cloud/moment.js');
+var moment = require('moment');
 var queryInstallation = new Parse.Query(Parse.Installation);
 
 
@@ -10,7 +10,7 @@ module.exports.CheckInManager = function CheckInManager(guestId, senderId, guest
   this.guestlistId = guestlistId;
   this.guestName = "";
 
-  /* 
+  /*
    * @param: -
    * @description: queries for the sender with the senderId property
    * @return: if the guests property is empty returns an empty array, else returns a query for the sender
@@ -23,7 +23,7 @@ module.exports.CheckInManager = function CheckInManager(guestId, senderId, guest
 
 
   /**
-   * @param: _User object 
+   * @param: _User object
    * @description: this function gifts the Sender credits
    * @return: a Parse Promise in the form of a Parse Object Save
    */

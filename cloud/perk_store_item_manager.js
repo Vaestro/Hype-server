@@ -1,6 +1,7 @@
   var _ = require('underscore');
-var moment = require('cloud/moment.js');
-var Mandrill = require('cloud/mandrill.js');
+var moment = require('moment');
+var mandrill = require('mandrill-api/mandrill');
+var mandrill_client = new mandrill.Mandrill('bl1nnYhj1De57xe');
 var INTERCOM_BASE_URL = 'eixn8wsn:5c0f7a0f42d3705369ed53d5d0c6695039a3ab58@api.intercom.io';
 
 module.exports.PerkStoreItemManager = function PerkStoreItemManager(ownerId, perkStoreItemId, perkStoreItemCost, ownerCredits, perkStoreItemName, userEmail, userName) {
@@ -30,7 +31,7 @@ module.exports.PerkStoreItemManager = function PerkStoreItemManager(ownerId, per
 
 
   /**
-   * @param: _User object 
+   * @param: _User object
    * @description: this function updates the Owner's credits
    * @return: a Parse Promise in the form of a Parse Object Save
    */
@@ -47,8 +48,8 @@ module.exports.PerkStoreItemManager = function PerkStoreItemManager(ownerId, per
   };
 
   /**
-   * @param: _User save 
-   * @description: this function creates a PurchasedPerkItem object 
+   * @param: _User save
+   * @description: this function creates a PurchasedPerkItem object
    * @return: a Parse Promise in the form of a Parse Object Save
    */
   this.createPurchasedPerkStoreItem = function(ownerSave) {
@@ -75,7 +76,7 @@ module.exports.PerkStoreItemManager = function PerkStoreItemManager(ownerId, per
 
   /**
    * @param: Parse Object
-   * @description: this function sends out an email to the owner using 
+   * @description: this function sends out an email to the owner using
    * @return: a Parse Promise in the form of a Parse Object Save
    */
   this.findIntercomId = function(purchasedPerkItem) {
@@ -83,11 +84,11 @@ module.exports.PerkStoreItemManager = function PerkStoreItemManager(ownerId, per
     if (_.isEmpty(purchasedPerkItem)) {
       return Parse.Promise.as([]);
     }
-    
+
     return Parse.Cloud.httpRequest({
       url: "https://" + INTERCOM_BASE_URL  + "/users?user_id=" + this.ownerId,
       headers: {'Accept': 'application/json'},
-      followRedirects: true 
+      followRedirects: true
     }).then(null, function(httpResponse) {
       console.error("Error fetching intercom id. HttpResponse: " + httpResponse.status);
       return Parse.Promise.error("There was an error completing your transaction. Please contact us through chat to resolve this issue as quickly as possible.");

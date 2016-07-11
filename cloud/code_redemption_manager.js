@@ -1,5 +1,5 @@
 var _ = require('underscore');
-var moment = require('cloud/moment.js');
+var moment = require('moment');
 var queryInstallation = new Parse.Query(Parse.Installation);
 var PromotionCodeEntry = Parse.Object.extend("PromotionCodeEntry");
 var PromotionCode = Parse.Object.extend("PromotionCode");
@@ -30,7 +30,7 @@ module.exports.CodeRedemptionManager = function CodeRedemptionManager(guestId, p
   this.queryPromoCodeEntry = function (activePromotionCode) {
 
     console.log('query for active promotion code ' + JSON.stringify(activePromotionCode));
-    
+
     if (_.isEmpty(activePromotionCode)) {
       return Parse.Promise.as(false);
     }
@@ -43,7 +43,7 @@ module.exports.CodeRedemptionManager = function CodeRedemptionManager(guestId, p
     var queryPromotionCodeEntry = new Parse.Query("PromotionCodeEntry")
                                            .equalTo('guest', guest)
                                            .equalTo('promotionCode', activePromotionCode);
-    
+
     return queryPromotionCodeEntry.first().then(null, function(error) {
       console.log('There was an error querying ' + JSON.stringify(error));
       return Parse.Promise.error('An error occured. Please try again.');
@@ -54,7 +54,7 @@ module.exports.CodeRedemptionManager = function CodeRedemptionManager(guestId, p
 
     if (promotionCodeEntryQuery == false || !_.isEmpty(promotionCodeEntryQuery )) {
       return Parse.Promise.as([]);
-    } 
+    }
 
     guest = new Parse.User();
     guest.id = this.guestId;
@@ -67,7 +67,7 @@ module.exports.CodeRedemptionManager = function CodeRedemptionManager(guestId, p
     promotionCodeEntry.set('date', new Date());
 
     return promotionCodeEntry.save();
-  }; 
+  };
 
   this.creditUser = function (promotionCodeEntry) {
     if (_.isEmpty(promotionCodeEntry)) {
@@ -82,5 +82,5 @@ module.exports.CodeRedemptionManager = function CodeRedemptionManager(guestId, p
       guest.increment('credits', this.activePromotionCode.get('creditAmount'));
       return guest.save();
     }
-  }; 
+  };
 };

@@ -1,5 +1,5 @@
 var _ = require('underscore');
-var moment = require('cloud/moment.js');
+var moment = require('moment');
 var Guestlist = Parse.Object.extend("Guestlist");
 var GuestlistInvite = Parse.Object.extend("GuestlistInvite");
 /**
@@ -26,7 +26,7 @@ module.exports.GuestlistManager = function GuestlistManager(guestPhoneNumbers, g
   this.knownOwnerId = [];
 
 
-  /** 
+  /**
    * This queries the system to locate known users by their provided phone numbers.
    * @return A promise that will return the known results of the query.
    */
@@ -98,7 +98,7 @@ module.exports.GuestlistManager = function GuestlistManager(guestPhoneNumbers, g
       var sender = new Parse.User();
       sender.id = ownerId;
 
-      var guestlistInvite = new GuestlistInvite(); 
+      var guestlistInvite = new GuestlistInvite();
       guestlistInvite.set("phoneNumber", user.get('phoneNumber'));
       guestlistInvite.set("Guestlist", guestlist);
       guestlistInvite.set("Guest", guest);

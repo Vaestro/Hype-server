@@ -1,5 +1,5 @@
 var _ = require('underscore');
-var moment = require('cloud/moment.js');
+var moment = require('moment');
 var GuestlistInvite = Parse.Object.extend("GuestlistInvite");
 var Channel = Parse.Object.extend("Channel");
 var Guestlist = Parse.Object.extend("Guestlist");
@@ -73,4 +73,3 @@ module.exports.UserOnboardManager = function UserOnboardManager(guestId, guestPh
   };
 
 };
-
