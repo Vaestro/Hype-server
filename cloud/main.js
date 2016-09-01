@@ -901,7 +901,9 @@ function Serialize(obj) {
 };
 
 var kue=require('kue');
-var queue=kue.createQueue();
+var queue=kue.createQueue({
+      redis:'redis://h:p130l529a4jg211ap91bd2gkqq2@ec2-54-163-236-235.compute-1.amazonaws.com:18809'
+});
 
 var job=queue.create('scheduledEventUpdates').priority('normal').save();
 
