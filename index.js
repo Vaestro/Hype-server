@@ -31,7 +31,6 @@ var dashboard = new ParseDashboard({
         "restKey": process.env.REST_KEY,
         "appName": 'hypelist_dev',
         production: false
-
     }],
     "users": [{
         "user": "hypeking",

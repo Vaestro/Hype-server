@@ -463,6 +463,7 @@ Parse.Cloud.define('completeOrder', function(request, response) {
         guestlistInvite.set("phoneNumber", request.user.get('phoneNumber'));
         guestlistInvite.set("date", new Date(Date.parse(request.params.eventTime)));
         guestlistInvite.set("didOpen", false);
+        guestlistInvite.set("admissionDescription", request.params.description);
 
         return Parse.Cloud.httpRequest({
             url: "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=" + customer.id + "_" + guestlist.id
@@ -558,6 +559,7 @@ Parse.Cloud.define('completeOrderForInvite', function(request, response) {
 
         guestlistInvite.set("qrCode", parseFile);
         guestlistInvite.set("response", 1);
+        guestlistInvite.set("admissionDescription", request.params.description);
 
         return guestlistInvite.save({ useMasterKey: true }).then(null, function(error) {
             console.log("Updating guestlist invite failed. Error: " + error);
@@ -899,38 +901,38 @@ function Serialize(obj) {
 };
 
 
-
 // Parse.Cloud.job("scheduledEventUpdates", function(request, status) {
 //     // Set up to modify user data
 //     Parse.Cloud.useMasterKey();
-//     var counter = 0;
-//     // Query for all users
+//
 //     var query = new Parse.Query('Event');
 //     query.lessThanOrEqualTo("date", new Date);
 //     query.greaterThanOrEqualTo("date", new Date(new Date().getTime() - (24 * 60 * 60 * 1000)));
-//     query.each(function(event) {
+//     query.each(function (event) {
+//         if (event.get("doesRepeat")) {
 //
-//         newEvent = new Event();
+//             newEvent = new Event();
 //
-//         var oldDate = new Date(event.get("date"));
+//             var oldDate = new Date(event.get("date"));
 //
-//         // newEvent.set( )
-//         newEvent.set("date", new Date(oldDate.setDate((oldDate.getDate() + 14))));
-//         newEvent.set("creditsPayout", event.get("creditsPayout"));
-//         if (event.get("ageRequirement")) newEvent.set("ageRequirement", event.get("ageRequirement"));
-//         newEvent.set("location", event.get("location"));
-//         newEvent.set("admissionOptions", event.get("admissionOptions"));
+//             newEvent.set("date", new Date(oldDate.setDate((oldDate.getDate() + 14))));
+//             newEvent.set("creditsPayout", event.get("creditsPayout"));
+//             newEvent.set("doesRepeat", event.get("doesRepeat"));
+//             newEvent.set("venueName", event.get("venueName"));
+//             if (event.get("organizer")) newEvent.set("organizer" , event.get("organizer"));
+//             if (event.get("organizerId")) newEvent.set("organizerId" , event.get("organizerId"));
 //
-//         if (counter % 100 === 0) {
-//             // Set the  job's progress status
-//             status.message(counter + " events processed.");
+//             if (event.get("title")) newEvent.set("title" , event.get("title"));
+//             if (event.get("ageRequirement")) newEvent.set("ageRequirement", event.get("ageRequirement"));
+//             newEvent.set('locationId', event.get('locationId'));
+//             newEvent.set("location", event.get("location"));
+//             newEvent.set("admissionOptions", event.get("admissionOptions"));
+//             return newEvent.save();
 //         }
-//         counter += 1;
-//         return newEvent.save();
-//     }).then(function() {
+//     }).then(function () {
 //         // Set the job's success status
 //         status.success("Migration completed successfully.");
-//     }, function(error) {
+//     }, function (error) {
 //         // Set the job's error status
 //         status.error("Uh oh, something went wrong. " + error.message);
 //     })
