@@ -900,6 +900,49 @@ function Serialize(obj) {
     return str.join("&");
 };
 
+var kue=require('kue');
+var queue=kue.createQueue();
+
+var job=queue.create('scheduledEventUpdates').priority('normal').save();
+
+queue.process('scheduledEventUpdates',updateEvents);
+
+function updateEvents(request, status){
+    // Set up to modify user data
+    Parse.Cloud.useMasterKey();
+    var counter = 0;
+    // Query for all users
+    var query = new Parse.Query('Event');
+    query.lessThanOrEqualTo("date", new Date);
+    query.greaterThanOrEqualTo("date", new Date(new Date().getTime() - (24 * 60 * 60 * 1000)));
+    query.each(function(event) {
+
+        newEvent = new Event();
+
+        var oldDate = new Date(event.get("date"));
+
+        // newEvent.set( )
+        newEvent.set("date", new Date(oldDate.setDate((oldDate.getDate() + 14))));
+        newEvent.set("creditsPayout", event.get("creditsPayout"));
+        if (event.get("ageRequirement")) newEvent.set("ageRequirement", event.get("ageRequirement"));
+        newEvent.set("location", event.get("location"));
+        newEvent.set("admissionOptions", event.get("admissionOptions"));
+
+        if (counter % 100 === 0) {
+            // Set the  job's progress status
+            status.message(counter + " events processed.");
+        }
+        counter += 1;
+        return newEvent.save();
+    }).then(function() {
+        // Set the job's success status
+        status.success("Migration completed successfully.");
+    }, function(error) {
+        // Set the job's error status
+        status.error("Uh oh, something went wrong. " + error.message);
+    })
+     done && done();
+}
 
 // Parse.Cloud.job("scheduledEventUpdates", function(request, status) {
 //     // Set up to modify user data
