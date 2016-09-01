@@ -909,7 +909,7 @@ var job=queue.create('scheduledEventUpdates').priority('normal').save();
 
 queue.process('scheduledEventUpdates',updateEvents);
 
-function updateEvents(request, status){
+function updateEvents(job, done){
     // Set up to modify user data
     Parse.Cloud.useMasterKey();
     var counter = 0;
@@ -932,17 +932,17 @@ function updateEvents(request, status){
 
         if (counter % 100 === 0) {
             // Set the  job's progress status
-            status.message(counter + " events processed.");
+            Parse.Cloud.httpResponse.status.message(counter + " events processed.");
         }
         counter += 1;
         return newEvent.save();
     }).then(function() {
         // Set the job's success status
-        status.success("Migration completed successfully.");
+        Parse.Cloud.httpResponse.status.success("Migration completed successfully.");
     }, function(error) {
         // Set the job's error status
-        status.error("Uh oh, something went wrong. " + error.message);
-    })
+        Parse.Cloud.httpResponse.status.error("Uh oh, something went wrong. " + error.message);
+    });
      done();
 }
 
