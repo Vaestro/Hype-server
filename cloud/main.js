@@ -943,7 +943,7 @@ function updateEvents(request, status){
         // Set the job's error status
         status.error("Uh oh, something went wrong. " + error.message);
     })
-     done && done();
+     done();
 }
 
 // Parse.Cloud.job("scheduledEventUpdates", function(request, status) {
