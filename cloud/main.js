@@ -900,51 +900,115 @@ function Serialize(obj) {
     return str.join("&");
 };
 
-var kue=require('kue');
-var queue=kue.createQueue({
-      redis:'redis://h:p130l529a4jg211ap91bd2gkqq2@ec2-54-163-236-235.compute-1.amazonaws.com:18809'
+
+var kue = require('kue');
+var queue=kue.createQueue( {redis:'redis://h:p130l529a4jg211ap91bd2gkqq2@ec2-54-163-236-235.compute-1.amazonaws.com:18809',
+    skipConfig: true
 });
 
-var job=queue.create('scheduledEventUpdates').priority('normal').save();
 
-queue.process('scheduledEventUpdates',updateEvents);
 
-function updateEvents(job, done){
-    // Set up to modify user data
-    Parse.Cloud.useMasterKey();
-    var counter = 0;
-    // Query for all users
-    var query = new Parse.Query('Event');
-    query.lessThanOrEqualTo("date", new Date);
-    query.greaterThanOrEqualTo("date", new Date(new Date().getTime() - (24 * 60 * 60 * 1000)));
+queue.process('new_job8',function(job,done){
+   console.log('Job',job.id,'is done');
+   
+   var d=new Date();
+   d=new Date(d.getTime()+(2*60*1000));
+   console.log('two minitues latter',d);
+   queue.create('new_job8').delay(d).save();
+
+   var query = new Parse.Query('Event');
+     query.lessThanOrEqualTo("date", new Date);
+    query.greaterThanOrEqualTo("date", new Date(new Date().getTime() - (2*24 * 60 * 60 * 1000)));
+
     query.each(function(event) {
-
         newEvent = new Event();
-
         var oldDate = new Date(event.get("date"));
+         newEvent.set("date", new Date(oldDate.setDate((oldDate.getDate() + 14))));
+         newEvent.set("creditsPayout", event.get("creditsPayout"));
+         if (event.get("ageRequirement")) newEvent.set("ageRequirement", event.get("ageRequirement"));
+         newEvent.set("location", event.get("location"));
+         newEvent.set("admissionOptions", event.get("admissionOptions"));
+         console.log('newEvent',newEvent.get("date"),'is done');
+         return newEvent.save();
+    })
+    .then(function() {
+         // Set the job's success status
 
-        // newEvent.set( )
-        newEvent.set("date", new Date(oldDate.setDate((oldDate.getDate() + 14))));
-        newEvent.set("creditsPayout", event.get("creditsPayout"));
-        if (event.get("ageRequirement")) newEvent.set("ageRequirement", event.get("ageRequirement"));
-        newEvent.set("location", event.get("location"));
-        newEvent.set("admissionOptions", event.get("admissionOptions"));
+        
+        httpResponse.status.success("Migration completed successfully.");
+     }, function(error) {
+         // Set the job's error status
+         httpResponse.status.error("Uh oh, something went wrong. " + error.message);
+     })
+   setTimeout(function(){
+    done();
+   },10000);
 
-        if (counter % 100 === 0) {
-            // Set the  job's progress status
-            Parse.Cloud.httpResponse.status.message(counter + " events processed.");
-        }
-        counter += 1;
-        return newEvent.save();
-    }).then(function() {
-        // Set the job's success status
-        Parse.Cloud.httpResponse.status.success("Migration completed successfully.");
-    }, function(error) {
-        // Set the job's error status
-        Parse.Cloud.httpResponse.status.error("Uh oh, something went wrong. " + error.message);
-    });
-     done();
+})
+
+kue.Job.rangeByType('new_job8','delayed',0,10,'',function(err,jobs){
+
+ if(err){return handleErr(err);}
+ if(!jobs.length){
+    var d=new Date();
+     d.setHours(12);
+     d.setMinutes(20);
+     d.setSeconds(0);
+     console.log(d);
+    queue.create('new_job8').delay(d).save();
 }
+});
+
+
+
+// var kue=require('kue');
+// var queue=kue.createQueue({
+//       redis:'redis://h:p130l529a4jg211ap91bd2gkqq2@ec2-54-163-236-235.compute-1.amazonaws.com:18809'
+// });
+
+// var job=queue.create('scheduledEventUpdates').priority('normal').save();
+
+// queue.process('scheduledEventUpdates',updateEvents);
+
+// function updateEvents(job, done){
+//     // Set up to modify user data
+//     //Parse.Cloud.useMasterKey();
+//     var counter = 0;
+//     // Query for all users
+//     var query = new Parse.Query('Event');
+   
+//     query.lessThanOrEqualTo("date", new Date);
+//     query.greaterThanOrEqualTo("date", new Date(new Date().getTime() - (24 * 60 * 60 * 1000)));
+//     query.each(function(event) {
+
+//         newEvent = new Event();
+
+//         var oldDate = new Date(event.get("date"));
+
+//         // newEvent.set( )
+//         newEvent.set("date", new Date(oldDate.setDate((oldDate.getDate() + 14))));
+//         newEvent.set("creditsPayout", event.get("creditsPayout"));
+//         if (event.get("ageRequirement")) newEvent.set("ageRequirement", event.get("ageRequirement"));
+//         newEvent.set("location", event.get("location"));
+//         newEvent.set("admissionOptions", event.get("admissionOptions"));
+
+//         if (counter % 100 === 0) {
+//             // Set the  job's progress status
+               
+//             Parse.Cloud.httpResponse.status.message(counter + " events processed.");
+//         }
+//         counter += 1;
+//         return newEvent.save();
+//     }).then(function() {
+//         // Set the job's success status
+//         Parse.Cloud.httpResponse.status.success("Migration completed successfully.");
+//     }, function(error) {
+//         // Set the job's error status
+//         Parse.Cloud.httpResponse.status.error("Uh oh, something went wrong. " + error.message);
+//     })
+//       console.log("Job",job.id,"done");
+//      done();
+// }
 
 // Parse.Cloud.job("scheduledEventUpdates", function(request, status) {
 //     // Set up to modify user data
