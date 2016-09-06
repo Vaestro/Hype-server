@@ -912,13 +912,13 @@ queue.process('new_job8',function(job,done){
    console.log('Job',job.id,'is done');
    
    var d=new Date();
-   d=new Date(d.getTime()+(2*60*1000));
+   d=new Date(d.getTime()+(60*60*1000));
    console.log('two minitues latter',d);
    queue.create('new_job8').delay(d).save();
 
    var query = new Parse.Query('Event');
      query.lessThanOrEqualTo("date", new Date);
-    query.greaterThanOrEqualTo("date", new Date(new Date().getTime() - (2*24 * 60 * 60 * 1000)));
+    query.greaterThanOrEqualTo("date", new Date(new Date().getTime() - (24 * 60 * 60 * 1000)));
 
     query.each(function(event) {
         newEvent = new Event();
@@ -951,8 +951,8 @@ kue.Job.rangeByType('new_job8','delayed',0,10,'',function(err,jobs){
  if(err){return handleErr(err);}
  if(!jobs.length){
     var d=new Date();
-     d.setHours(12);
-     d.setMinutes(9);
+     d.setHours(4);
+     d.setMinutes(0);
      d.setSeconds(0);
      console.log(d);
     queue.create('new_job8').delay(d).save();
