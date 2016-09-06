@@ -908,13 +908,13 @@ var queue=kue.createQueue( {redis:'redis://h:p130l529a4jg211ap91bd2gkqq2@ec2-54-
 
 
 
-queue.process('new_job8',function(job,done){
+queue.process('new_job101',function(job,done){
    console.log('Job',job.id,'is done');
    
    var d=new Date();
-   d=new Date(d.getTime()+(60*60*1000));
-   console.log('two minitues latter',d);
-   queue.create('new_job8').delay(d).save();
+   d=new Date(d.getTime()+(24*60*60*1000));
+   console.log('Tomorrow update time is:',d);
+   queue.create('new_job101').delay(d).save();
 
    var query = new Parse.Query('Event');
      query.lessThanOrEqualTo("date", new Date);
@@ -946,7 +946,7 @@ queue.process('new_job8',function(job,done){
 
 })
 
-kue.Job.rangeByType('new_job8','delayed',0,10,'',function(err,jobs){
+kue.Job.rangeByType('new_job101','delayed',0,10,'',function(err,jobs){
 
  if(err){return handleErr(err);}
  if(!jobs.length){
@@ -954,8 +954,9 @@ kue.Job.rangeByType('new_job8','delayed',0,10,'',function(err,jobs){
      d.setHours(4);
      d.setMinutes(0);
      d.setSeconds(0);
+     d=new Date(d.getTime()+(1000*60*60*24));
      console.log(d);
-    queue.create('new_job8').delay(d).save();
+    queue.create('new_job101').delay(d).save();
 }
 });
 
