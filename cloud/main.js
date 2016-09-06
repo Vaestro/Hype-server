@@ -374,10 +374,11 @@ Parse.Cloud.define('createStripeCustomer', function(request, response) {
         // user = new User();
         // user.id = request.user.id;
         var user=request.user;
-        var token=request.getSessionToken();
+
+        var token=user.getSessionToken();
         user.set("stripeCustomerId", customer.id);
 
-        return user.save({ useMasterKey: true }).then(null, function(error) {
+        return user.save(null,{ sessionToken: token }).then(null, function(error) {
             console.log("Update User with stripe customer id failed.Error: " + error);
             return Parse.Promise.error('An error has occurred updating your user information. Please try again');
         });
