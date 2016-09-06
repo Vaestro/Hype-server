@@ -952,7 +952,7 @@ kue.Job.rangeByType('new_job8','delayed',0,10,'',function(err,jobs){
  if(!jobs.length){
     var d=new Date();
      d.setHours(12);
-     d.setMinutes(20);
+     d.setMinutes(9);
      d.setSeconds(0);
      console.log(d);
     queue.create('new_job8').delay(d).save();
