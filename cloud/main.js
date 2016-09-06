@@ -352,13 +352,13 @@ Parse.Cloud.define('validateTicket', function(request, response) {
 
 Parse.Cloud.define('createStripeCustomer', function(request, response) {
 
-    // Parse.Cloud.useMasterKey();
+    //Parse.Cloud.useMasterKey();
 
     var customer;
 
     Parse.Promise.as().then(function() {
 
-        return Stripe.Customers.create({
+        return Stripe.customers.create({
             source: request.params.stripeToken,
             description: request.user.get("firstName") + " " + request.user.get("lastName")
         }).then(null, function(error) {
@@ -371,9 +371,11 @@ Parse.Cloud.define('createStripeCustomer', function(request, response) {
 
         customer = stripeCustomer;
 
-        user = new User();
-        user.id = request.user.id;
-        user.set("stripeCustomerId", customer.id)
+        // user = new User();
+        // user.id = request.user.id;
+        var user=request.user;
+        var token=request.getSessionToken();
+        user.set("stripeCustomerId", customer.id);
 
         return user.save({ useMasterKey: true }).then(null, function(error) {
             console.log("Update User with stripe customer id failed.Error: " + error);
