@@ -37,7 +37,7 @@ var Guestlist = Parse.Object.extend("Guestlist");
 var Event = Parse.Object.extend("Event");
 var AdmissionOption = Parse.Object.extend("AdmissionOption");
 var User = Parse.User;
-var cloudrequest=require('request');
+
 
 
 Parse.Cloud.define('sendOutInvitations', function(request, response) {
