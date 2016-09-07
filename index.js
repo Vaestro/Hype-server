@@ -20,6 +20,21 @@ var api = new ParseServer({
     fileKey: process.env.FILE_KEY || 'myAppId',
     masterKey: process.env.MASTER_KEY || '', //Add your master key here. Keep it secret!
     serverURL: process.env.SERVER_URL || 'http://localhost:1337/parse', // Don't forget to change to https if needed
+    push:{
+        ios:[{
+            pfx: '/development_certificate.p12',
+            passphrase: '',
+            cert:'',
+            key:'',
+            bundledId:'com.hypelist.hype',
+            production:false
+        },{
+            pfx: '/Production Certificate.p12',
+            bundledId:'com.hypelist.hype',
+            production:true
+        }]
+    }
+
 });
 
 var dashboard = new ParseDashboard({
