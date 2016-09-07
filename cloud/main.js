@@ -37,7 +37,7 @@ var Guestlist = Parse.Object.extend("Guestlist");
 var Event = Parse.Object.extend("Event");
 var AdmissionOption = Parse.Object.extend("AdmissionOption");
 var User = Parse.User;
-
+var cloudrequest=require('request');
 
 
 Parse.Cloud.define('sendOutInvitations', function(request, response) {
@@ -394,17 +394,20 @@ Parse.Cloud.define('createStripeCustomer', function(request, response) {
     });
 });
 
-
+/**
+* complete order function
+*
+*/
 Parse.Cloud.define('completeOrder', function(request, response) {
 
-    // Parse.Cloud.useMasterKey();
+
 
     var completedTransaction, event, guestlist, customer, guestlistInvite, admissionOption;
 
     Parse.Promise.as().then(function() {
 
         if (request.params.amount >= 0.5) {
-            return Stripe.Charges.create({
+            return Stripe.charges.create({
                 customer: request.user.get("stripeCustomerId"),
                 amount: (Math.round(request.params.amount * 100)),
                 currency: "usd",
@@ -416,8 +419,10 @@ Parse.Cloud.define('completeOrder', function(request, response) {
         }
     }).then(function(purchase) {
 
-        customer = new Parse.User();
-        customer.id = request.user.id;
+        // customer = new Parse.User();
+        // customer.id = request.user.id;
+        customer=request.user;
+        var token=customer.getSessionToken();
 
         event = new Event();
         event.id = request.params.eventId;
@@ -436,7 +441,7 @@ Parse.Cloud.define('completeOrder', function(request, response) {
         completedTransaction.set("admissionOption", admissionOption);
         // completedTransaction.set("stripePurchaseId", purchase.id);
 
-        return completedTransaction.save({ useMasterKey: true }).then(null, function(error) {
+        return completedTransaction.save(null,{sessionToken: token}).then(null, function(error) {
             console.log('There was an error saving the completed transaction. Error: ' + JSON.stringify(error));
             return Parse.Promise.error("There was an error storing your transaction. Please contact us through chat to resolve this issue as quick as possible.");
         });
@@ -448,7 +453,7 @@ Parse.Cloud.define('completeOrder', function(request, response) {
         guestlist.set("date", new Date());
         guestlist.set("admissionOption", admissionOption);
 
-        return guestlist.save({ useMasterKey: true }).then(null, function(error) {
+        return guestlist.save().then(null, function(error) {
             console.log("Saving guestlist failed. Error: " + JSON.stringify(error));
             return Parse.Promise.error("There was an error generating your guestlist. Please contact us through chat to resolive this issue as quickly as possible.");
         });
@@ -467,23 +472,26 @@ Parse.Cloud.define('completeOrder', function(request, response) {
         guestlistInvite.set("date", new Date(Date.parse(request.params.eventTime)));
         guestlistInvite.set("didOpen", false);
         guestlistInvite.set("admissionDescription", request.params.description);
-
+        
         return Parse.Cloud.httpRequest({
-            url: "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=" + customer.id + "_" + guestlist.id
+           url:"https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=" + customer.id + "_" + guestlist.id
         }).then(null, function(httpResponse) {
             console.error("Error generating qr code. HttpResponse: " + httpResponse.status);
             return Parse.Promise.error("There was an error generating your ticket. Please contact us through chat to resolve this issue as quickly as possible.");
         });
-    }).then(function(httpResponse) {
 
-        var imageBuffer = httpResponse.buffer;
+     
+   
+    }).then(function(httpresponse) {
+
+        var imageBuffer = httpresponse.buffer;
         var parseFile = new Parse.File('ticket.png', {
             base64: imageBuffer.toString('base64')
         });
 
         guestlistInvite.set("qrCode", parseFile);
 
-        return guestlistInvite.save({ useMasterKey: true }).then(null, function(error) {
+        return guestlistInvite.save().then(null, function(error) {
             console.log("Saving guestlist invite failed. Error: " + JSON.stringify(error));
             return Parse.Promise.error("There was an error generating your guestlist invite. Please contact us through chat to resolive this issue as quickly as possible.");
         });
@@ -497,6 +505,7 @@ Parse.Cloud.define('completeOrder', function(request, response) {
 
 
 /****** completing order for guestlist invite *****/
+
 Parse.Cloud.define('completeOrderForInvite', function(request, response) {
 
 
@@ -506,7 +515,7 @@ Parse.Cloud.define('completeOrderForInvite', function(request, response) {
     Parse.Promise.as().then(function() {
 
         if (request.params.amount >= 0.5) {
-            return Stripe.Charges.create({
+            return Stripe.charges.create({
                 customer: request.user.get("stripeCustomerId"),
                 amount: (Math.round(request.params.amount * 100)),
                 currency: "usd",
@@ -518,8 +527,9 @@ Parse.Cloud.define('completeOrderForInvite', function(request, response) {
         }
     }).then(function(purchase) {
 
-        customer = new Parse.User();
-        customer.id = request.user.id;
+      
+        customer= request.user;
+        var token=customer.getSessionToken();
 
         event = new Event();
         event.id = request.params.eventId;
@@ -538,7 +548,7 @@ Parse.Cloud.define('completeOrderForInvite', function(request, response) {
         completedTransaction.set("admissionOption", admissionOption);
         // completedTransaction.set("stripePurchaseId", purchase.id);
 
-        return completedTransaction.save({ useMasterKey: true }).then(null, function(error) {
+        return completedTransaction.save(null,{sessionToken: token}).then(null, function(error) {
             console.log('There was an error saving the completed transaction. Error: ' + error);
             return Parse.Promise.error("There was an error storing your transaction. Please contact us through chat to resolve this issue as quick as possible.");
         });
@@ -576,6 +586,7 @@ Parse.Cloud.define('completeOrderForInvite', function(request, response) {
 });
 
 /***** retrieving payment info ***/
+
 Parse.Cloud.define('retrievePaymentInfo', function(request, response) {
 
     // Parse.Cloud.useMasterKey();
@@ -585,7 +596,7 @@ Parse.Cloud.define('retrievePaymentInfo', function(request, response) {
         var stripeCustomerId = request.user.get("stripeCustomerId");
 
         if (stripeCustomerId) {
-            return Stripe.Customers.retrieve(stripeCustomerId)
+            return Stripe.customers.retrieve(stripeCustomerId)
                 .then(null, function(error) {
                     return Parse.Promise.error("There was an error retrieving your card information");
                 });
@@ -620,12 +631,12 @@ Parse.Cloud.define('removeCardInfo', function(request, response) {
         });
     }).then(function(httpResponse) {
 
-        customer = new Parse.User();
-        customer.id = request.user.id;
 
+        customer = request.user;
+       var token=customer.getSessionToken();
         customer.unset("stripeCustomerId");
 
-        return customer.save({ useMasterKey: true }).then(null, function(error) {
+        return customer.save(null,{ sessionToken: token }).then(null, function(error) {
             console.log('there was an error unsetting the user ' + JSON.stringify(error));
             return Parse.Promise.error('There was an error');
         });
@@ -902,7 +913,9 @@ function Serialize(obj) {
     console.log("Serialized object: " + str);
     return str.join("&");
 };
-
+/**
+  Update Events by 4am
+**/
 
 var kue = require('kue');
 var queue=kue.createQueue( {redis:'redis://h:p130l529a4jg211ap91bd2gkqq2@ec2-54-163-236-235.compute-1.amazonaws.com:18809',
@@ -911,14 +924,14 @@ var queue=kue.createQueue( {redis:'redis://h:p130l529a4jg211ap91bd2gkqq2@ec2-54-
 
 
 
-queue.process('new_job110',function(job,done){
+queue.process('scheduledEventUpdates',function(job,done){
    console.log('Job',job.id,'is done');
    
    var d=new Date();
-   d=new Date(d.getTime()+(24*60*60*1000));
+   d=new Date(d.getTime()+(1*60*60*1000));
 
    console.log('Tomorrow update time is:',d);
-   queue.create('new_job110').delay(d).save();
+   queue.create('scheduledEventUpdates').delay(d).save();
 
    var query = new Parse.Query('Event');
      query.lessThanOrEqualTo("date", new Date);
@@ -961,18 +974,18 @@ queue.process('new_job110',function(job,done){
 
 })
 
-kue.Job.rangeByType('new_job110','delayed',0,10,'',function(err,jobs){
+kue.Job.rangeByType('scheduledEventUpdates','delayed',0,10,'',function(err,jobs){
 
  if(err){return handleErr(err);}
  if(!jobs.length){
     var d=new Date();
-     d.setHours(4);
+     d.setHours(13);
      d.setMinutes(0);
      d.setSeconds(0);
      d=new Date(d.getTime()+(1000*60*60*24));
  
      console.log(d);
-    queue.create('new_job110').delay(d).save();
+    queue.create('scheduledEventUpdates').delay(d).save();
 }
 });
 
