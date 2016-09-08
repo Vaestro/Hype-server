@@ -126,7 +126,7 @@ Parse.Cloud.define('sendOutInvitations', function(request, response) {
                     "badge": "Increment",
                     "guestlistInviteId": guestlistInvite.id
                 }
-            },{ useMasterKey:true});
+            },{useMasterKey:true});
         });
 
         Parse.Promise.when(installationPromises)
