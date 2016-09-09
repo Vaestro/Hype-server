@@ -12,8 +12,9 @@ var twilio = require('twilio')(twilioSID, twilioAuthToken);
 var Mixpanel = require('mixpanel');
 var mixpanelToken = "2946053341530a84c490a107bd3e5fff";
 var Mailgun = require('mailgun-js')({apiKey: 'gethype.co', domain: 'key-2beb52eae9bf4631d909ebaadaec1264'});
-var mandrill = require('mandrill-api/mandrill');
-var mandrill_client = new mandrill.Mandrill('bl1nnYhj1De57xe');
+// var mandrill = require('mandrill-api/mandrill');
+// var mandrill_client = new mandrill.Mandrill('4Rd4imd3JMZZrIqktdPqEA');
+var mandrill_function=require("./mandrill_email.js");
 
 var Stripe = require('stripe')('sk_test_OKwk3On1VYINpv2wJX2PMnCn');
 
@@ -490,7 +491,7 @@ Parse.Cloud.define('completeOrder', function(request, response) {
         });
 
         guestlistInvite.set("qrCode", parseFile);
-
+        guestlistInvite.set("qrbase64",imageBuffer.toString('base64'));
         return guestlistInvite.save().then(null, function(error) {
             console.log("Saving guestlist invite failed. Error: " + JSON.stringify(error));
             return Parse.Promise.error("There was an error generating your guestlist invite. Please contact us through chat to resolive this issue as quickly as possible.");
@@ -498,8 +499,51 @@ Parse.Cloud.define('completeOrder', function(request, response) {
 
     }).then(function(guestlistInvite) {
         response.success(guestlist);
+        return guestlistInvite;
     }, function(error) {
         response.error(error);
+    }).then(function(guestlistInvite){
+      // send email using mandrill
+  console.log("request.params.description",request.params.description);
+  // console.log("event.location:",event.location.get('name') );
+  console.log("request.params.eventTime:",request.params.eventTime);
+  var message = {
+
+    "html": "<p><b>"+request.params.description+ "</b></p></br><p>PLEASE PRESENT TICKET TO DOORMAN</p>",
+    "text": "Example text content, Hello World",
+    "subject": "Your ticket confirmation for" + " " + " on " + request.params.eventTime +" ",
+    "from_email": "contact@gethype.co",
+    "from_name": "Hype",
+    "to": [{
+            "email": customer.get("email"),
+            "name": customer.get("firstName")+ " "+ customer.get("lastName"),
+            "type": "to"
+        }],
+    "headers": {
+        "Reply-To": "contact@gethype.co"
+    },
+    "important": true,
+
+    "bcc_address": "contact@gethype.co",
+
+    "recipient_metadata": [{
+            "rcpt": customer.get("email"),
+            "values": {
+                "user_id": customer.id
+            }
+        }],
+   "images": [{
+            "type": "image/png",
+            "name": "IMAGECID",
+            "content": guestlistInvite.get("qrbase64")
+        }]
+};
+
+
+     
+     mandrill_function.mandrill_email(message);
+
+
     });
 });
 
