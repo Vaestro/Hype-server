@@ -407,10 +407,10 @@ Parse.Cloud.define('createStripeCustomer', function(request, response) {
 });
 
 /**
- * submit inquiry function
+ * submit Hype Connect inquiry function
  *
  */
-Parse.Cloud.define('submitInquiry', function(request, response) {
+Parse.Cloud.define('submitConnectInquiry', function(request, response) {
 
     var inquiry, event, guestlist, guestlistInvite, admissionOption, owner;
 
@@ -472,46 +472,6 @@ Parse.Cloud.define('submitInquiry', function(request, response) {
         return guestlistInvite;
     }, function(error) {
         response.error(error);
-    }).then(function(guestlistInvite) {
-        // send email using mandrill
-        console.log("request.params.description", request.params.description);
-        // console.log("event.location:",event.location.get('name') );
-        console.log("request.params.eventTime:", request.params.eventTime);
-        var message = {
-
-            "html": "<p><b>" + request.params.description + "</b></p></br><p>PLEASE PRESENT TICKET TO DOORMAN</p>",
-            "text": "Example text content, Hello World",
-            "subject": "Your ticket confirmation for" + " " + " on " + request.params.eventTime + " ",
-            "from_email": "contact@gethype.co",
-            "from_name": "Hype",
-            "to": [{
-                "email": customer.get("email"),
-                "name": customer.get("firstName") + " " + customer.get("lastName"),
-                "type": "to"
-            }],
-            "headers": {
-                "Reply-To": "contact@gethype.co"
-            },
-            "important": true,
-
-            "bcc_address": "contact@gethype.co",
-
-            "recipient_metadata": [{
-                "rcpt": customer.get("email"),
-                "values": {
-                    "user_id": customer.id
-                }
-            }],
-            "images": [{
-                "type": "image/png",
-                "name": "IMAGECID",
-                "content": guestlistInvite.get("qrbase64")
-            }]
-        };
-
-        mandrill_function.mandrill_email(message);
-
-
     });
 });
 
@@ -624,6 +584,46 @@ Parse.Cloud.define('completeOrder', function(request, response) {
         return guestlistInvite;
     }, function(error) {
         response.error(error);
+    }).then(function(guestlistInvite) {
+        // send email using mandrill
+        console.log("request.params.description", request.params.description);
+        // console.log("event.location:",event.location.get('name') );
+        console.log("request.params.eventTime:", request.params.eventTime);
+        var message = {
+
+            "html": "<p><b>" + request.params.description + "</b></p></br><p>PLEASE PRESENT TICKET TO DOORMAN</p>",
+            "text": "Example text content, Hello World",
+            "subject": "Your ticket confirmation for" + " " + " on " + request.params.eventTime + " ",
+            "from_email": "contact@gethype.co",
+            "from_name": "Hype",
+            "to": [{
+                "email": customer.get("email"),
+                "name": customer.get("firstName") + " " + customer.get("lastName"),
+                "type": "to"
+            }],
+            "headers": {
+                "Reply-To": "contact@gethype.co"
+            },
+            "important": true,
+
+            "bcc_address": "contact@gethype.co",
+
+            "recipient_metadata": [{
+                "rcpt": customer.get("email"),
+                "values": {
+                    "user_id": customer.id
+                }
+            }],
+            "images": [{
+                "type": "image/png",
+                "name": "IMAGECID",
+                "content": guestlistInvite.get("qrbase64")
+            }]
+        };
+
+        mandrill_function.mandrill_email(message);
+
+
     });
 });
 
