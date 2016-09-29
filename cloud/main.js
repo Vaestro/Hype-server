@@ -40,6 +40,8 @@ var GuestlistInvite = Parse.Object.extend("GuestlistInvite");
 var Guestlist = Parse.Object.extend("Guestlist");
 var Event = Parse.Object.extend("Event");
 var AdmissionOption = Parse.Object.extend("AdmissionOption");
+var Inquiry = Parse.Object.extend("Inquiry");
+
 var User = Parse.User;
 
 
