@@ -468,8 +468,7 @@ Parse.Cloud.define('submitConnectInquiry', function(request, response) {
         });
 
     }).then(function(guestlistInvite) {
-        response.success(guestlist);
-        return guestlistInvite;
+        response.success(guestlistInvite);
     }, function(error) {
         response.error(error);
     });
