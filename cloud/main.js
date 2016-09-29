@@ -455,11 +455,11 @@ Parse.Cloud.define('submitConnectInquiry', function(request, response) {
         guestlistInvite = new GuestlistInvite();
         guestlistInvite.set("Guestlist", guestlist);
         guestlistInvite.set("event", event);
-        guestlistInvite.set("Guest", customer);
-        guestlistInvite.set("sender", customer);
+        guestlistInvite.set("Guest", owner);
+        guestlistInvite.set("sender", owner);
         guestlistInvite.set("checkInStatus", false);
         guestlistInvite.set("response", 1);
-        guestlistInvite.set("phoneNumber", request.user.get('phoneNumber'));
+        guestlistInvite.set("phoneNumber", owner.get('phoneNumber'));
         guestlistInvite.set("date", new Date(Date.parse(request.params.eventTime)));
         guestlistInvite.set("didOpen", false);
         guestlistInvite.set("admissionDescription", request.params.description);
