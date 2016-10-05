@@ -1068,14 +1068,14 @@ var queue = kue.createQueue({
 
 
 
-queue.process('scheduledEventUpdate_1', function(job, done) {
+queue.process('scheduledEventUpdate_2', function(job, done) {
   
 
     var d = new Date();
     d = new Date(d.getTime() + (24 * 60 * 60 * 1000));
 
     console.log('Tomorrow update time is:', d);
-    queue.create('scheduledEventUpdate_1').delay(d).save();
+    queue.create('scheduledEventUpdate_2').delay(d).save();
 
     var query = new Parse.Query('Event');
     query.lessThanOrEqualTo("date", new Date);
@@ -1119,7 +1119,7 @@ queue.process('scheduledEventUpdate_1', function(job, done) {
 
 })
 
-kue.Job.rangeByType('scheduledEventUpdate_1', 'delayed', 0, 10, '', function(err, jobs) {
+kue.Job.rangeByType('scheduledEventUpdate_2', 'delayed', 0, 10, '', function(err, jobs) {
 
     if (err) {
         return handleErr(err);
@@ -1134,7 +1134,7 @@ kue.Job.rangeByType('scheduledEventUpdate_1', 'delayed', 0, 10, '', function(err
         d = new Date(d.getTime() + (1000 * 60 * 60 * 24));
         
         console.log("first start time: "+d);
-        queue.create('scheduledEventUpdate_1').delay(d).save();
+        queue.create('scheduledEventUpdate_2').delay(d).save();
     }
     console.log("job length: "+jobs.length);
 });
