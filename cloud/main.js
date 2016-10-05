@@ -40,6 +40,8 @@ var GuestlistInvite = Parse.Object.extend("GuestlistInvite");
 var Guestlist = Parse.Object.extend("Guestlist");
 var Event = Parse.Object.extend("Event");
 var AdmissionOption = Parse.Object.extend("AdmissionOption");
+var Inquiry = Parse.Object.extend("Inquiry");
+
 var User = Parse.User;
 
 
@@ -453,11 +455,11 @@ Parse.Cloud.define('submitConnectInquiry', function(request, response) {
         guestlistInvite = new GuestlistInvite();
         guestlistInvite.set("Guestlist", guestlist);
         guestlistInvite.set("event", event);
-        guestlistInvite.set("Guest", customer);
-        guestlistInvite.set("sender", customer);
+        guestlistInvite.set("Guest", owner);
+        guestlistInvite.set("sender", owner);
         guestlistInvite.set("checkInStatus", false);
         guestlistInvite.set("response", 1);
-        guestlistInvite.set("phoneNumber", request.user.get('phoneNumber'));
+        guestlistInvite.set("phoneNumber", owner.get('phoneNumber'));
         guestlistInvite.set("date", new Date(Date.parse(request.params.eventTime)));
         guestlistInvite.set("didOpen", false);
         guestlistInvite.set("admissionDescription", request.params.description);
@@ -468,8 +470,7 @@ Parse.Cloud.define('submitConnectInquiry', function(request, response) {
         });
 
     }).then(function(guestlistInvite) {
-        response.success(guestlist);
-        return guestlistInvite;
+        response.success(guestlistInvite);
     }, function(error) {
         response.error(error);
     });
