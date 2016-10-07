@@ -443,6 +443,7 @@ Parse.Cloud.define('submitConnectInquiry', function(request, response) {
 
         inquiry = new Inquiry();
         inquiry.set("Guestlist", guestlist);
+        if (event.get("venueName")) inquiry.set("venueName", event.get("venueName"));
 
         return inquiry.save().then(null, function(error) {
             console.log("Saving inquiry failed. Error: " + JSON.stringify(error));
@@ -1094,20 +1095,26 @@ queue.process('scheduledEventUpdate_2', function(job, done) {
         }
     });
     query.each(function(event) {
-            newEvent = new Event();
-            var oldDate = new Date(event.get("date"));
-            newEvent.set("date", new Date(oldDate.setDate((oldDate.getDate() + 14))));
-            newEvent.set("creditsPayout", event.get("creditsPayout"));
-            if (event.get("ageRequirement")) newEvent.set("ageRequirement", event.get("ageRequirement"));
-            newEvent.set("location", event.get("location"));
-            newEvent.set("admissionOptions", event.get("admissionOptions"));
-            console.log('newEvent', newEvent.get("date"), 'is done');
-            return newEvent.save();
+            if (event.get("doesRepeat")) {
+                newEvent = new Event();
+                var oldDate = new Date(event.get("date"));
+                newEvent.set("admissionOptions", event.get("admissionOptions"));
+                newEvent.set("creditsPayout", event.get("creditsPayout"));
+                if (event.get("ageRequirement")) newEvent.set("ageRequirement", event.get("ageRequirement"));
+                newEvent.set("date", new Date(oldDate.setDate((oldDate.getDate() + 14))));
+                newEvent.set("doesRepeat", event.get("doesRepeat"));
+                newEvent.set("location", event.get("location"));
+                newEvent.set('locationId', event.get('locationId'));
+                if (event.get("organizer")) newEvent.set("organizer", event.get("organizer"));
+                if (event.get("organizerId")) newEvent.set("organizerId", event.get("organizerId"));
+                if (event.get("title")) newEvent.set("title", event.get("title"));
+                newEvent.set("venueName", event.get("venueName"));
+                console.log('newEvent', newEvent.get("date"), 'is done');
+                return newEvent.save();
+            }
         })
         .then(function() {
             // Set the job's success status
-
-
             httpResponse.status.success("Migration completed successfully.");
         }, function(error) {
             // Set the job's error status
@@ -1133,10 +1140,10 @@ kue.Job.rangeByType('scheduledEventUpdate_2', 'delayed', 0, 10, '', function(err
         //+24 housrs
         d = new Date(d.getTime() + (1000 * 60 * 60 * 24));
 
-        console.log("first start time: "+d);
+        console.log("first start time: " + d);
         queue.create('scheduledEventUpdate_2').delay(d).save();
     }
-    console.log("job length: "+jobs.length);
+    console.log("job length: " + jobs.length);
 });
 
 
