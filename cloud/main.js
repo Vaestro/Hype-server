@@ -443,7 +443,7 @@ Parse.Cloud.define('submitConnectInquiry', function(request, response) {
 
         inquiry = new Inquiry();
         inquiry.set("Guestlist", guestlist);
-        inquiry.set("venueName", event.get('venueName'));
+
         return inquiry.save().then(null, function(error) {
             console.log("Saving inquiry failed. Error: " + JSON.stringify(error));
             return Parse.Promise.error("There was an error generating your guestlist. Please contact us through chat to resolive this issue as quickly as possible.");
