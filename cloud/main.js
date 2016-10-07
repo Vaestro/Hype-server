@@ -443,7 +443,7 @@ Parse.Cloud.define('submitConnectInquiry', function(request, response) {
 
         inquiry = new Inquiry();
         inquiry.set("Guestlist", guestlist);
-
+        inquiry.set("venueName", event.get('venueName'))
         return inquiry.save().then(null, function(error) {
             console.log("Saving inquiry failed. Error: " + JSON.stringify(error));
             return Parse.Promise.error("There was an error generating your guestlist. Please contact us through chat to resolive this issue as quickly as possible.");
@@ -1069,7 +1069,7 @@ var queue = kue.createQueue({
 
 
 queue.process('scheduledEventUpdate_2', function(job, done) {
-  
+
 
     var d = new Date();
     d = new Date(d.getTime() + (24 * 60 * 60 * 1000));
@@ -1124,7 +1124,7 @@ kue.Job.rangeByType('scheduledEventUpdate_2', 'delayed', 0, 10, '', function(err
     if (err) {
         return handleErr(err);
     }
-    
+
     if (!jobs.length) {
         var d = new Date();
         d.setHours(4);
@@ -1132,7 +1132,7 @@ kue.Job.rangeByType('scheduledEventUpdate_2', 'delayed', 0, 10, '', function(err
         d.setSeconds(0);
         //+24 housrs
         d = new Date(d.getTime() + (1000 * 60 * 60 * 24));
-        
+
         console.log("first start time: "+d);
         queue.create('scheduledEventUpdate_2').delay(d).save();
     }
