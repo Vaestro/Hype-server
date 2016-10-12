@@ -423,12 +423,20 @@ Parse.Cloud.define('submitConnectInquiry', function(request, response) {
         event = new Event();
         event.id = request.params.eventId;
 
+        inquiry = new Inquiry();
+        if (event.get("venueName")) inquiry.set("venueName", event.get("venueName"));
+        return inquiry.save().then(null, function(error) {
+            console.log("Saving inquiry failed. Error: " + JSON.stringify(error));
+            return Parse.Promise.error("There was an error generating your guestlist. Please contact us through chat to resolive this issue as quickly as possible.");
+        });
+    }).then(function(inquiry) {
         admissionOption = new AdmissionOption();
         admissionOption.id = request.params.admissionOptionId;
 
         guestlist = new Guestlist();
         guestlist.set("Owner", owner);
         guestlist.set("event", event);
+        guestlist.set("Inquiry", inquiry);
         guestlist.set("date", new Date());
         guestlist.set("admissionOption", admissionOption);
 
@@ -436,23 +444,7 @@ Parse.Cloud.define('submitConnectInquiry', function(request, response) {
             console.log("Saving guestlist failed. Error: " + JSON.stringify(error));
             return Parse.Promise.error("There was an error generating your guestlist. Please contact us through chat to resolive this issue as quickly as possible.");
         });
-
-    }).then(function(savedGuestlist) {
-
-        guestlist = savedGuestlist;
-
-        inquiry = new Inquiry();
-        inquiry.set("Guestlist", guestlist);
-        if (event.get("venueName")) inquiry.set("venueName", event.get("venueName"));
-
-        return inquiry.save().then(null, function(error) {
-            console.log("Saving inquiry failed. Error: " + JSON.stringify(error));
-            return Parse.Promise.error("There was an error generating your guestlist. Please contact us through chat to resolive this issue as quickly as possible.");
-        });
-    }).then(function(savedInquiry) {
-
-        guestlist = savedInquiry.get("Guestlist");
-
+    }).then(function(guestlist) {
         guestlistInvite = new GuestlistInvite();
         guestlistInvite.set("Guestlist", guestlist);
         guestlistInvite.set("event", event);
