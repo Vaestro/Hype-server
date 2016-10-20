@@ -425,6 +425,11 @@ Parse.Cloud.define('submitConnectInquiry', function(request, response) {
 
         inquiry = new Inquiry();
         if (event.get("venueName")) inquiry.set("venueName", event.get("venueName"));
+        inquiry.set("Sender", owner);
+        inquiry.set("date", new Date(Date.parse(request.params.eventTime)));
+        inquiry.set("connected", false);
+        inquiry.set("Event", event);
+
         return inquiry.save().then(null, function(error) {
             console.log("Saving inquiry failed. Error: " + JSON.stringify(error));
             return Parse.Promise.error("There was an error generating your guestlist. Please contact us through chat to resolive this issue as quickly as possible.");
