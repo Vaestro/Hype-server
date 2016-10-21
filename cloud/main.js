@@ -424,12 +424,25 @@ Parse.Cloud.define('submitConnectInquiry', function(request, response) {
         event = new Event();
         event.id = request.params.eventId;
 
+        inquiry = new Inquiry();
+        if (event.get("venueName")) inquiry.set("venueName", event.get("venueName"));
+        inquiry.set("Sender", owner);
+        inquiry.set("date", new Date(Date.parse(request.params.eventTime)));
+        inquiry.set("connected", false);
+        inquiry.set("Event", event);
+
+        return inquiry.save().then(null, function(error) {
+            console.log("Saving inquiry failed. Error: " + JSON.stringify(error));
+            return Parse.Promise.error("There was an error generating your guestlist. Please contact us through chat to resolive this issue as quickly as possible.");
+        });
+    }).then(function(inquiry) {
         admissionOption = new AdmissionOption();
         admissionOption.id = request.params.admissionOptionId;
 
         guestlist = new Guestlist();
         guestlist.set("Owner", owner);
         guestlist.set("event", event);
+        guestlist.set("Inquiry", inquiry);
         guestlist.set("date", new Date());
         guestlist.set("admissionOption", admissionOption);
 
@@ -437,22 +450,7 @@ Parse.Cloud.define('submitConnectInquiry', function(request, response) {
             console.log("Saving guestlist failed. Error: " + JSON.stringify(error));
             return Parse.Promise.error("There was an error generating your guestlist. Please contact us through chat to resolive this issue as quickly as possible.");
         });
-
-    }).then(function(savedGuestlist) {
-
-        guestlist = savedGuestlist;
-
-        inquiry = new Inquiry();
-        inquiry.set("Guestlist", guestlist);
-
-        return inquiry.save().then(null, function(error) {
-            console.log("Saving inquiry failed. Error: " + JSON.stringify(error));
-            return Parse.Promise.error("There was an error generating your guestlist. Please contact us through chat to resolive this issue as quickly as possible.");
-        });
-    }).then(function(savedInquiry) {
-
-        guestlist = savedInquiry.get("Guestlist");
-
+    }).then(function(guestlist) {
         guestlistInvite = new GuestlistInvite();
         guestlistInvite.set("Guestlist", guestlist);
         guestlistInvite.set("event", event);
@@ -1073,7 +1071,7 @@ var queue = kue.createQueue({
 
 
 queue.process('scheduledEventUpdate_2', function(job, done) {
-  
+
 
     var d = new Date();
     d = new Date(d.getTime() + (24 * 60 * 60 * 1000));
@@ -1098,20 +1096,26 @@ queue.process('scheduledEventUpdate_2', function(job, done) {
         }
     });
     query.each(function(event) {
-            newEvent = new Event();
-            var oldDate = new Date(event.get("date"));
-            newEvent.set("date", new Date(oldDate.setDate((oldDate.getDate() + 14))));
-            newEvent.set("creditsPayout", event.get("creditsPayout"));
-            if (event.get("ageRequirement")) newEvent.set("ageRequirement", event.get("ageRequirement"));
-            newEvent.set("location", event.get("location"));
-            newEvent.set("admissionOptions", event.get("admissionOptions"));
-            console.log('newEvent', newEvent.get("date"), 'is done');
-            return newEvent.save();
+            if (event.get("doesRepeat")) {
+                newEvent = new Event();
+                var oldDate = new Date(event.get("date"));
+                newEvent.set("admissionOptions", event.get("admissionOptions"));
+                newEvent.set("creditsPayout", event.get("creditsPayout"));
+                if (event.get("ageRequirement")) newEvent.set("ageRequirement", event.get("ageRequirement"));
+                newEvent.set("date", new Date(oldDate.setDate((oldDate.getDate() + 14))));
+                newEvent.set("doesRepeat", event.get("doesRepeat"));
+                newEvent.set("location", event.get("location"));
+                newEvent.set('locationId', event.get('locationId'));
+                if (event.get("organizer")) newEvent.set("organizer", event.get("organizer"));
+                if (event.get("organizerId")) newEvent.set("organizerId", event.get("organizerId"));
+                if (event.get("title")) newEvent.set("title", event.get("title"));
+                newEvent.set("venueName", event.get("venueName"));
+                console.log('newEvent', newEvent.get("date"), 'is done');
+                return newEvent.save();
+            }
         })
         .then(function() {
             // Set the job's success status
-
-
             httpResponse.status.success("Migration completed successfully.");
         }, function(error) {
             // Set the job's error status
@@ -1128,7 +1132,7 @@ kue.Job.rangeByType('scheduledEventUpdate_2', 'delayed', 0, 10, '', function(err
     if (err) {
         return handleErr(err);
     }
-    
+
     if (!jobs.length) {
         var d = new Date();
         d.setHours(4);
@@ -1136,11 +1140,11 @@ kue.Job.rangeByType('scheduledEventUpdate_2', 'delayed', 0, 10, '', function(err
         d.setSeconds(0);
         //+24 housrs
         d = new Date(d.getTime() + (1000 * 60 * 60 * 24));
-        
-        console.log("first start time: "+d);
+
+        console.log("first start time: " + d);
         queue.create('scheduledEventUpdate_2').delay(d).save();
     }
-    console.log("job length: "+jobs.length);
+    console.log("job length: " + jobs.length);
 });
 
 
