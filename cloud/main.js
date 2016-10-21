@@ -369,6 +369,7 @@ Parse.Cloud.define('createStripeCustomer', function(request, response) {
     var customer;
 
     Parse.Promise.as().then(function() {
+         console.log("createStripeCustomer:",request.params.stripeToken)
 
         return Stripe.customers.create({
             source: request.params.stripeToken,
@@ -721,7 +722,9 @@ Parse.Cloud.define('retrievePaymentInfo', function(request, response) {
     // Parse.Cloud.useMasterKey();
 
     Parse.Promise.as().then(function() {
-
+         console.log("retrieving payment info",request.user)
+         // var currentUser = Parse.User.current();
+         // console.log("server side loggedin?:",currentUser)
         var stripeCustomerId = request.user.get("stripeCustomerId");
 
         if (stripeCustomerId) {
@@ -734,10 +737,11 @@ Parse.Cloud.define('retrievePaymentInfo', function(request, response) {
         }
     }).then(function(customer) {
 
-        console.log(JSON.stringify(customer));
+
 
         var customerInfo;
         (_.isEmpty(customer)) ? customerInfo = null: customerInfo = customer.sources.data;
+                console.log("cutomerInfo: ",customerInfo);
         response.success(customerInfo);
     }, function(error) {
         response.error(error);
