@@ -370,6 +370,7 @@ Parse.Cloud.define('createStripeCustomer', function(request, response) {
 
     Parse.Promise.as().then(function() {
          console.log("createStripeCustomer:",request.params.stripeToken)
+           console.log(request.user.get("username") + " " + request.user.get("lastName"))
 
         return Stripe.customers.create({
             source: request.params.stripeToken,
@@ -1070,18 +1071,21 @@ var queue = kue.createQueue({
 
 
 
-queue.process('scheduledEventUpdate_2', function(job, done) {
+queue.process('scheduledEventUpdate_26', function(job, done) {
 
 
-    var d = new Date();
-    d = new Date(d.getTime() + (24 * 60 * 60 * 1000));
+     var d = new Date();
+        d.setHours(8);
+        d.setMinutes(10);
+        d.setSeconds(0);
+    td = new Date(d.getTime() + (24 * 60 * 60 * 1000));
 
-    console.log('Tomorrow update time is:', d);
-    queue.create('scheduledEventUpdate_2').delay(d).save();
+    console.log('Tomorrow update time is:', td);
+    queue.create('scheduledEventUpdate_26').delay(td).priority('high').save();
 
     var query = new Parse.Query('Event');
-    query.lessThanOrEqualTo("date", new Date);
-    query.greaterThanOrEqualTo("date", new Date(new Date().getTime() - (24 * 60 * 60 * 1000)));
+    query.lessThanOrEqualTo("date", d);
+    query.greaterThanOrEqualTo("date", new Date(d.getTime() - (24 * 60 * 60 * 1000)));
 
     query.find({
         success: function(results) {
@@ -1112,6 +1116,8 @@ queue.process('scheduledEventUpdate_2', function(job, done) {
                 newEvent.set("venueName", event.get("venueName"));
                 console.log('newEvent', newEvent.get("date"), 'is done');
                 return newEvent.save();
+            }else{
+                console.log("Event is not Repeated Event");
             }
         })
         .then(function() {
@@ -1123,11 +1129,11 @@ queue.process('scheduledEventUpdate_2', function(job, done) {
         })
     setTimeout(function() {
         done();
-    }, 10000);
+    }, 7000);
 
 })
 
-kue.Job.rangeByType('scheduledEventUpdate_2', 'delayed', 0, 10, '', function(err, jobs) {
+kue.Job.rangeByType('scheduledEventUpdate_26', 'delayed', 0, 10, '', function(err, jobs) {
 
     if (err) {
         return handleErr(err);
@@ -1135,14 +1141,14 @@ kue.Job.rangeByType('scheduledEventUpdate_2', 'delayed', 0, 10, '', function(err
 
     if (!jobs.length) {
         var d = new Date();
-        d.setHours(4);
+        d.setHours(8);
         d.setMinutes(0);
         d.setSeconds(0);
         //+24 housrs
-        d = new Date(d.getTime() + (1000 * 60 * 60 * 24));
+        // d = new Date(d.getTime() + (1000 * 60 * 60 * 24));
 
         console.log("first start time: " + d);
-        queue.create('scheduledEventUpdate_2').delay(d).save();
+        queue.create('scheduledEventUpdate_26').delay(d).priority('high').save();
     }
     console.log("job length: " + jobs.length);
 });
