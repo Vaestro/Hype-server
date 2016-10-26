@@ -400,6 +400,7 @@ Parse.Cloud.define('createStripeCustomer', function(request, response) {
         });
 
     }).then(function() {
+        console.log("customer.sources.data:",customer.sources.data)
 
         response.success(customer.sources.data);
 
@@ -503,6 +504,7 @@ Parse.Cloud.define('completeOrder', function(request, response) {
 
         // customer = new Parse.User();
         // customer.id = request.user.id;
+
         customer = request.user;
         var token = customer.getSessionToken();
 
@@ -515,7 +517,7 @@ Parse.Cloud.define('completeOrder', function(request, response) {
         completedTransaction = new Parse.Object('CompletedTransaction');
         completedTransaction.set("description", request.params.description);
         completedTransaction.set("date", new Date());
-        completedTransaction.set("customerName", request.params.customerName);
+        completedTransaction.set("customerName", request.params.customerName||customer.get("username"));
         completedTransaction.set("venue", request.params.venue);
         completedTransaction.set("amountPaid", request.params.amount.toFixed(2));
         completedTransaction.set("customer", customer);
