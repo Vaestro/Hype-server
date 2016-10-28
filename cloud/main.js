@@ -41,6 +41,7 @@ var Guestlist = Parse.Object.extend("Guestlist");
 var Event = Parse.Object.extend("Event");
 var AdmissionOption = Parse.Object.extend("AdmissionOption");
 var Inquiry = Parse.Object.extend("Inquiry");
+var ChatRoom = Parse.Object.extend("ChatRoom");
 
 var User = Parse.User;
 
@@ -475,6 +476,32 @@ Parse.Cloud.define('submitConnectInquiry', function(request, response) {
     }, function(error) {
         response.error(error);
     });
+});
+
+/**
+* Create chat room funciton
+*
+*/
+
+Parse.Cloud.define('createChatRoom', function(request, response) {
+        var userId = request.params.userId;
+        var hostId = request.params.hostId;
+        var curUser = new User();
+        curUser.id = userId;
+        var host = new User();
+        host.id = hostId;
+        var chatRoom = new ChatRoom();
+        chatRoom.set("promoter", host);
+        chatRoom.set("client", curUser);
+        chatRoom.set("title", "Your Inquiry For The Club");
+        chatRoom.save(null, {
+            success: function(chatRoom) {
+                response.success(chatRoom);
+            },
+            error: function(object, error) {
+                response.error(error);
+            }
+        });
 });
 
 /**
