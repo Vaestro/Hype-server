@@ -502,11 +502,12 @@ Parse.Cloud.define('submitOfferForInquiry', function(request, response) {
             .equalTo('venueName', venueName);
         // queryEvent.greaterThanOrEqualTo('date', minDateRange);
         // queryEvent.lessThanOrEqualTo('date', maxDateRange);
+        console.log("Begin query for event");
 
         return queryEvent.first().then(null, function(error) {
             console.log("No Event matched inquiry offer venue + date. Error: " + JSON.stringify(error));
         });
-    }).then(null, function(eventQueryResults) {
+    }).then(function(eventQueryResults) {
         console.log(eventQueryResults);
 
         if (eventQueryResults === undefined || eventQueryResults.length == 0) {
