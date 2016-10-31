@@ -373,8 +373,8 @@ Parse.Cloud.define('createStripeCustomer', function(request, response) {
     var customer;
 
     Parse.Promise.as().then(function() {
-         console.log("createStripeCustomer:",request.params.stripeToken)
-           console.log(request.user.get("username") + " " + request.user.get("lastName"))
+        console.log("createStripeCustomer:", request.params.stripeToken)
+        console.log(request.user.get("username") + " " + request.user.get("lastName"))
 
         return Stripe.customers.create({
             source: request.params.stripeToken,
@@ -404,7 +404,7 @@ Parse.Cloud.define('createStripeCustomer', function(request, response) {
         });
 
     }).then(function() {
-        console.log("customer.sources.data:",customer.sources.data)
+        console.log("customer.sources.data:", customer.sources.data)
 
         response.success(customer.sources.data);
 
@@ -490,33 +490,33 @@ Parse.Cloud.define('submitOfferForInquiry', function(request, response) {
     var inquiry, event, venue, host, inquiryOffer;
 
     Parse.Promise.as().then(function() {
-      host = request.user;
-      var token = host.getSessionToken();
+        host = request.user;
+        var token = host.getSessionToken();
 
-      var venueName = request.params.venueName;
-      var offerDate = request.params.dateTime;
-      var maxDateRange = moment(offerDate).add(4, 'hours');
-      var minDateRange = moment(offerDate).subtract(4, 'hours');
+        var venueName = request.params.venueName;
+        var offerDate = request.params.dateTime;
+        var maxDateRange = moment(offerDate).add(4, 'hours');
+        var minDateRange = moment(offerDate).subtract(4, 'hours');
 
-      var queryEvent = new Parse.Query("Event");
-      queryEvent.equalTo('venueName', venueName);
-      queryEvent.greaterThanOrEqualTo('date', minDateRange);
-      queryEvent.lessThanOrEqualTo('date', maxDateRange);
+        var queryEvent = new Parse.Query("Event");
+        queryEvent.equalTo('venueName', venueName);
+        queryEvent.greaterThanOrEqualTo('date', minDateRange);
+        queryEvent.lessThanOrEqualTo('date', maxDateRange);
 
-      return queryEvent.first().then(null, function(error) {
-        console.log("No Event matched inquiry offer venue + date. Error: " + JSON.stringify(error));
+        return queryEvent.first().then(null, function(error) {
+            console.log("No Event matched inquiry offer venue + date. Error: " + JSON.stringify(error));
+        });
+    }).then(function(eventQueryResult) {
+        if (eventQueryResult != nil) {
+            event = eventQueryResult;
+        }
         var queryVenue = new Parse.Query("Location");
         queryVenue.equalTo('name', venueName);
         return queryVenue.first().then(null, function(error) {
-          console.log("Querying Venue failed. Error: " + JSON.stringify(error));
+            console.log("Querying Venue failed. Error: " + JSON.stringify(error));
         });
-      });
-  }).then(function(eventOrVenue) {
-        if (eventOrVenue instanceof Event) {
-          event = eventOrVenue;
-        } else if (eventOrVenue instanceof Venue) {
-          venue = eventOrVenue
-        }
+    }).then(function(venueQueryResult) {
+        venue = venueQueryResult;
 
         inquiryOffer = new InquiryOffer();
         if (event.get("objectId")) inquiryOffer.set("Event", event);
@@ -538,29 +538,29 @@ Parse.Cloud.define('submitOfferForInquiry', function(request, response) {
 
 
 /**
-* Create chat room funciton
-*
-*/
+ * Create chat room funciton
+ *
+ */
 
 Parse.Cloud.define('createChatRoom', function(request, response) {
-        var userId = request.params.userId;
-        var hostId = request.params.hostId;
-        var curUser = new User();
-        curUser.id = userId;
-        var host = new User();
-        host.id = hostId;
-        var chatRoom = new ChatRoom();
-        chatRoom.set("promoter", host);
-        chatRoom.set("client", curUser);
-        chatRoom.set("title", "Your Inquiry For The Club");
-        chatRoom.save(null, {
-            success: function(chatRoom) {
-                response.success(chatRoom);
-            },
-            error: function(object, error) {
-                response.error(error);
-            }
-        });
+    var userId = request.params.userId;
+    var hostId = request.params.hostId;
+    var curUser = new User();
+    curUser.id = userId;
+    var host = new User();
+    host.id = hostId;
+    var chatRoom = new ChatRoom();
+    chatRoom.set("promoter", host);
+    chatRoom.set("client", curUser);
+    chatRoom.set("title", "Your Inquiry For The Club");
+    chatRoom.save(null, {
+        success: function(chatRoom) {
+            response.success(chatRoom);
+        },
+        error: function(object, error) {
+            response.error(error);
+        }
+    });
 });
 
 /**
@@ -603,7 +603,7 @@ Parse.Cloud.define('completeOrder', function(request, response) {
         completedTransaction = new Parse.Object('CompletedTransaction');
         completedTransaction.set("description", request.params.description);
         completedTransaction.set("date", new Date());
-        completedTransaction.set("customerName", request.params.customerName||customer.get("username"));
+        completedTransaction.set("customerName", request.params.customerName || customer.get("username"));
         completedTransaction.set("venue", request.params.venue);
         completedTransaction.set("amountPaid", request.params.amount.toFixed(2));
         completedTransaction.set("customer", customer);
@@ -809,9 +809,9 @@ Parse.Cloud.define('retrievePaymentInfo', function(request, response) {
     // Parse.Cloud.useMasterKey();
 
     Parse.Promise.as().then(function() {
-         console.log("retrieving payment info",request.user)
-         // var currentUser = Parse.User.current();
-         // console.log("server side loggedin?:",currentUser)
+        console.log("retrieving payment info", request.user)
+            // var currentUser = Parse.User.current();
+            // console.log("server side loggedin?:",currentUser)
         var stripeCustomerId = request.user.get("stripeCustomerId");
 
         if (stripeCustomerId) {
@@ -828,7 +828,7 @@ Parse.Cloud.define('retrievePaymentInfo', function(request, response) {
 
         var customerInfo;
         (_.isEmpty(customer)) ? customerInfo = null: customerInfo = customer.sources.data;
-                console.log("cutomerInfo: ",customerInfo);
+        console.log("cutomerInfo: ", customerInfo);
         response.success(customerInfo);
     }, function(error) {
         response.error(error);
@@ -1162,10 +1162,10 @@ var queue = kue.createQueue({
 queue.process('scheduledEventUpdate_27', function(job, done) {
 
 
-     var d = new Date();
-        d.setHours(8);
-        d.setMinutes(10);
-        d.setSeconds(0);
+    var d = new Date();
+    d.setHours(8);
+    d.setMinutes(10);
+    d.setSeconds(0);
     td = new Date(d.getTime() + (24 * 60 * 60 * 1000));
 
     console.log('Tomorrow update time is:', td);
@@ -1204,7 +1204,7 @@ queue.process('scheduledEventUpdate_27', function(job, done) {
                 newEvent.set("venueName", event.get("venueName"));
                 console.log('newEvent', newEvent.get("date"), 'is done');
                 return newEvent.save();
-            }else{
+            } else {
                 console.log("Event is not Repeated Event");
             }
         })
