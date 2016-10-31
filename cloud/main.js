@@ -500,8 +500,8 @@ Parse.Cloud.define('submitOfferForInquiry', function(request, response) {
 
         var queryEvent = new Parse.Query("Event");
         queryEvent.equalTo('venueName', venueName);
-        queryEvent.greaterThanOrEqualTo('date', minDateRange);
-        queryEvent.lessThanOrEqualTo('date', maxDateRange);
+        // queryEvent.greaterThanOrEqualTo('date', minDateRange);
+        // queryEvent.lessThanOrEqualTo('date', maxDateRange);
 
         return queryEvent.find().then(null, function(error) {
             console.log("No Event matched inquiry offer venue + date. Error: " + JSON.stringify(error));
