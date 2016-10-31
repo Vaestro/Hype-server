@@ -504,10 +504,11 @@ Parse.Cloud.define('submitOfferForInquiry', function(request, response) {
       queryEvent.lessThanOrEqualTo('date', maxDateRange);
 
       return queryEvent.first().then(null, function(error) {
+        console.log("No Event matched inquiry offer venue + date. Error: " + JSON.stringify(error));
         var queryVenue = new Parse.Query("Location");
         queryVenue.equalTo('name', venueName);
         return queryVenue.first().then(null, function(error) {
-          console.log("Querying for Event or Venue failed. Error: " + JSON.stringify(error));
+          console.log("Querying Venue failed. Error: " + JSON.stringify(error));
         });
       });
   }).then(function(eventOrVenue) {
