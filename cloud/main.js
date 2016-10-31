@@ -485,69 +485,69 @@ Parse.Cloud.define('submitConnectInquiry', function(request, response) {
  * submit Offer for Inquiry function
  *
  */
-Parse.Cloud.define('submitOfferForInquiry', function(request, response) {
-
-    var inquiry, event, venue, host, inquiryOffer;
-
-    Parse.Promise.as().then(function() {
-        host = request.user;
-        var token = host.getSessionToken();
-
-        var venueName = request.params.venueName;
-        // var offerDate = request.params.dateTime;
-        // var maxDateRange = moment(offerDate).add(4, 'hours');
-        // var minDateRange = moment(offerDate).subtract(4, 'hours');
-
-        var queryEvent = new Parse.Query('Event')
-            .equalTo('venueName', venueName);
-        // queryEvent.greaterThanOrEqualTo('date', minDateRange);
-        // queryEvent.lessThanOrEqualTo('date', maxDateRange);
-        console.log("Begin query for event");
-
-        return queryEvent.find().then(null, function(error) {
-            console.log("No Event matched inquiry offer venue + date. Error: " + JSON.stringify(error));
-        });
-    }).then(function(eventQueryResults) {
-        console.log(eventQueryResults);
-
-        if (eventQueryResults === undefined || eventQueryResults.length == 0) {
-            console.log("Event Query was empty!");
-        } else {
-            console.log("Event Query was not empty!: " + eventQueryResults.length);
-            event = eventQueryResults[0];
-        }
-
-        console.log("Begin query for venue");
-        var queryVenue = new Parse.Query('Location')
-            .equalTo('name', venueName);
-        return queryVenue.first().then(null, function(error) {
-            console.log("Querying Venue failed. Error: " + JSON.stringify(error));
-        });
-    }).then(function(venueQueryResult) {
-        console.log(venueQueryResult);
-
-        venue = venueQueryResult;
-        console.log("Begin creating inquiry offer");
-
-        inquiryOffer = new InquiryOffer();
-        if (event != nil) inquiryOffer.set("Event", event);
-        if (venue != nil) inquiryOffer.set("Venue", venue);
-        inquiryOffer.set("message", request.params.message);
-        inquiryOffer.set("Host", host);
-        inquiryOffer.set("accepted", false);
-
-        return inquiryOffer.save(null, {
-            sessionToken: token
-        }).then(null, function(error) {
-            console.log('Saving inquiry offer failed. Error: ' + JSON.stringify(error));
-            return Parse.Promise.error("There was an error storing your inquiry. Please contact us through chat to resolve this issue as quick as possible.");
-        });
-    }).then(function(inquiryOffer) {
-        response.success(inquiryOffer);
-    }, function(error) {
-        response.error(error);
-    });
-});
+// Parse.Cloud.define('submitOfferForInquiry', function(request, response) {
+//
+//     var inquiry, event, venue, host, inquiryOffer;
+//
+//     Parse.Promise.as().then(function() {
+//         host = request.user;
+//         var token = host.getSessionToken();
+//
+//         var venueName = request.params.venueName;
+//         // var offerDate = request.params.dateTime;
+//         // var maxDateRange = moment(offerDate).add(4, 'hours');
+//         // var minDateRange = moment(offerDate).subtract(4, 'hours');
+//
+//         var queryEvent = new Parse.Query('Event')
+//             .equalTo('venueName', venueName);
+//         // queryEvent.greaterThanOrEqualTo('date', minDateRange);
+//         // queryEvent.lessThanOrEqualTo('date', maxDateRange);
+//         console.log("Begin query for event");
+//
+//         return queryEvent.find().then(null, function(error) {
+//             console.log("No Event matched inquiry offer venue + date. Error: " + JSON.stringify(error));
+//         });
+//     }).then(function(eventQueryResults) {
+//         console.log(eventQueryResults);
+//
+//         if (eventQueryResults === undefined || eventQueryResults.length == 0) {
+//             console.log("Event Query was empty!");
+//         } else {
+//             console.log("Event Query was not empty!: " + eventQueryResults.length);
+//             event = eventQueryResults[0];
+//         }
+//
+//         console.log("Begin query for venue");
+//         var queryVenue = new Parse.Query('Location')
+//             .equalTo('name', venueName);
+//         return queryVenue.first().then(null, function(error) {
+//             console.log("Querying Venue failed. Error: " + JSON.stringify(error));
+//         });
+//     }).then(function(venueQueryResult) {
+//         console.log(venueQueryResult);
+//
+//         venue = venueQueryResult;
+//         console.log("Begin creating inquiry offer");
+//
+//         inquiryOffer = new InquiryOffer();
+//         if (event != nil) inquiryOffer.set("Event", event);
+//         if (venue != nil) inquiryOffer.set("Venue", venue);
+//         inquiryOffer.set("message", request.params.message);
+//         inquiryOffer.set("Host", host);
+//         inquiryOffer.set("accepted", false);
+//
+//         return inquiryOffer.save(null, {
+//             sessionToken: token
+//         }).then(null, function(error) {
+//             console.log('Saving inquiry offer failed. Error: ' + JSON.stringify(error));
+//             return Parse.Promise.error("There was an error storing your inquiry. Please contact us through chat to resolve this issue as quick as possible.");
+//         });
+//     }).then(function(inquiryOffer) {
+//         response.success(inquiryOffer);
+//     }, function(error) {
+//         response.error(error);
+//     });
+// });
 
 
 /**
