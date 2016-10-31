@@ -498,8 +498,8 @@ Parse.Cloud.define('submitOfferForInquiry', function(request, response) {
         // var maxDateRange = moment(offerDate).add(4, 'hours');
         // var minDateRange = moment(offerDate).subtract(4, 'hours');
 
-        var queryEvent = new Parse.Query("Event");
-        queryEvent.equalTo('venueName', venueName);
+        var queryEvent = new Parse.Query(Event)
+            .equalTo('venueName', venueName);
         // queryEvent.greaterThanOrEqualTo('date', minDateRange);
         // queryEvent.lessThanOrEqualTo('date', maxDateRange);
 
@@ -512,8 +512,8 @@ Parse.Cloud.define('submitOfferForInquiry', function(request, response) {
         if (eventQueryResults === undefined || eventQueryResults.length == 0) {
             console.log("Event Query was empty!");
         } else {
-          console.log("Event Query was not empty!: " + eventQueryResults.length);
-          event = eventQueryResults.first();
+            console.log("Event Query was not empty!: " + eventQueryResults.length);
+            event = eventQueryResults.first();
         }
 
         console.log("Begin query for venue");
