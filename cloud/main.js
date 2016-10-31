@@ -496,7 +496,7 @@ Parse.Cloud.define('submitOfferForInquiry', function(request, response) {
       var venueName = request.params.venueName;
       var offerDate = request.params.dateTime;
       var maxDateRange = moment(offerDate).add(4, 'hours');
-      var minDateRange = moment(offerDate).add(-4, 'hours');
+      var minDateRange = moment(offerDate).subtract(4, 'hours');
 
       var queryEvent = new Parse.Query("Event");
       queryEvent.equalTo('venueName', venueName);
