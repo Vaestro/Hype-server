@@ -38,7 +38,7 @@ var userOnboard = require('./user_onboard_manager.js');
 var entryCode = require('./code_redemption_manager.js');
 var GuestlistInvite = Parse.Object.extend("GuestlistInvite");
 var Guestlist = Parse.Object.extend("Guestlist");
-var Venue = Parse.Object.exetned("Location");
+var Venue = Parse.Object.extend("Location");
 var Event = Parse.Object.extend("Event");
 var AdmissionOption = Parse.Object.extend("AdmissionOption");
 var Inquiry = Parse.Object.extend("Inquiry");
@@ -494,7 +494,7 @@ Parse.Cloud.define('submitOfferForInquiry', function(request, response) {
       var token = host.getSessionToken();
 
       var venueName = request.params.venueName;
-      var offerDate = request.params.date;
+      var offerDate = request.params.dateTime;
       var maxDateRange = moment(offerDate).add(4, 'hours');
       var minDateRange = moment(offerDate).add(-4, 'hours');
 
