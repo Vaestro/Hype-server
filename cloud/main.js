@@ -514,7 +514,7 @@ Parse.Cloud.define('submitOfferForInquiry', function(request, response) {
             console.log("Event Query was empty!");
         } else {
             console.log("Event Query was not empty!: " + eventQueryResults.length);
-            event = eventQueryResults.first();
+            event = eventQueryResults[0];
         }
 
         console.log("Begin query for venue");
