@@ -518,12 +518,14 @@ Parse.Cloud.define('submitOfferForInquiry', function(request, response) {
         }
 
         console.log("Begin query for venue");
-        var queryVenue = new Parse.Query("Location")
+        var queryVenue = new Parse.Query('Location')
             .equalTo('name', venueName);
         return queryVenue.first().then(null, function(error) {
             console.log("Querying Venue failed. Error: " + JSON.stringify(error));
         });
     }).then(function(venueQueryResult) {
+        console.log(venueQueryResult);
+
         venue = venueQueryResult;
         console.log("Begin creating inquiry offer");
 
