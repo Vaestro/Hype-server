@@ -38,9 +38,12 @@ var userOnboard = require('./user_onboard_manager.js');
 var entryCode = require('./code_redemption_manager.js');
 var GuestlistInvite = Parse.Object.extend("GuestlistInvite");
 var Guestlist = Parse.Object.extend("Guestlist");
+var Venue = Parse.Object.exetned("Location");
 var Event = Parse.Object.extend("Event");
 var AdmissionOption = Parse.Object.extend("AdmissionOption");
 var Inquiry = Parse.Object.extend("Inquiry");
+var InquiryOffer = Parse.Object.extend("InquiryOffer");
+
 var ChatRoom = Parse.Object.extend("ChatRoom");
 
 var User = Parse.User;
@@ -420,7 +423,7 @@ Parse.Cloud.define('submitConnectInquiry', function(request, response) {
 
     var inquiry, event, guestlist, guestlistInvite, admissionOption, owner;
 
-    Parse.Promise.as().then(function(completedTransaction) {
+    Parse.Promise.as().then(function() {
         owner = request.user;
         var token = owner.getSessionToken();
 
@@ -477,6 +480,61 @@ Parse.Cloud.define('submitConnectInquiry', function(request, response) {
         response.error(error);
     });
 });
+
+/**
+ * submit Offer for Inquiry function
+ *
+ */
+Parse.Cloud.define('submitOfferForInquiry', function(request, response) {
+
+    var inquiry, event, venue, host, inquiryOffer;
+
+    Parse.Promise.as().then(function() {
+      host = request.user;
+      var token = host.getSessionToken();
+
+      var venueName = request.params.venueName;
+      var offerDate = request.params.date;
+      var maxDateRange = moment(offerDate).add(4, 'hours');
+      var minDateRange = moment(offerDate).add(-4, 'hours');
+
+      var queryEvent = new Parse.Query("Event");
+      queryEvent.equalTo('venueName', venueName);
+      queryEvent.greaterThanOrEqualTo('date', minDateRange);
+      queryEvent.lessThanOrEqualTo('date', maxDateRange);
+
+      return queryEvent.first().then(null, function(error) {
+        var queryVenue = new Parse.Query("Location");
+        queryVenue.equalTo('name', venueName);
+        return queryVenue.first().then(null, function(error) {
+          console.log("Querying for Event or Venue failed. Error: " + JSON.stringify(error));
+        });
+      });
+  }).then(function(eventOrVenue) {
+        if (eventOrVenue instanceof Event) {
+          event = eventOrVenue;
+        } else if (eventOrVenue instanceof Venue) {
+          venue = eventOrVenue
+        }
+
+        inquiryOffer = new InquiryOffer();
+        if (event.get("objectId")) inquiryOffer.set("Event", event);
+        if (venue.get("objectId")) inquiryOffer.set("Venue", venue);
+        inquiryOffer.set("message", request.params.message);
+        inquiryOffer.set("Host", host);
+        inquiryOffer.set("accepted", false);
+
+        return inquiryOffer.save().then(null, function(error) {
+            console.log("Saving inquiry offer failed. Error: " + JSON.stringify(error));
+            return Parse.Promise.error("There was an error creating your inquiry. Please contact us through chat to resolive this issue as quickly as possible.");
+        });
+    }).then(function(inquiryOffer) {
+        response.success(inquiryOffer);
+    }, function(error) {
+        response.error(error);
+    });
+});
+
 
 /**
 * Create chat room funciton
