@@ -518,24 +518,27 @@ Parse.Cloud.define('submitOfferForInquiry', function(request, response) {
         }
 
         console.log("Begin query for venue");
-        var queryVenue = new Parse.Query("Location");
-        queryVenue.equalTo('name', venueName);
+        var queryVenue = new Parse.Query("Location")
+            .equalTo('name', venueName);
         return queryVenue.first().then(null, function(error) {
             console.log("Querying Venue failed. Error: " + JSON.stringify(error));
         });
     }).then(function(venueQueryResult) {
         venue = venueQueryResult;
+        console.log("Begin creating inquiry offer");
 
         inquiryOffer = new InquiryOffer();
-        if (event.get("objectId")) inquiryOffer.set("Event", event);
-        if (venue.get("objectId")) inquiryOffer.set("Venue", venue);
+        if (event != nil) inquiryOffer.set("Event", event);
+        if (venue != nil) inquiryOffer.set("Venue", venue);
         inquiryOffer.set("message", request.params.message);
         inquiryOffer.set("Host", host);
         inquiryOffer.set("accepted", false);
 
-        return inquiryOffer.save().then(null, function(error) {
-            console.log("Saving inquiry offer failed. Error: " + JSON.stringify(error));
-            return Parse.Promise.error("There was an error creating your inquiry. Please contact us through chat to resolive this issue as quickly as possible.");
+        return inquiryOffer.save(null, {
+            sessionToken: token
+        }).then(null, function(error) {
+            console.log('Saving inquiry offer failed. Error: ' + JSON.stringify(error));
+            return Parse.Promise.error("There was an error storing your inquiry. Please contact us through chat to resolve this issue as quick as possible.");
         });
     }).then(function(inquiryOffer) {
         response.success(inquiryOffer);
