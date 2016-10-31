@@ -507,7 +507,7 @@ Parse.Cloud.define('submitOfferForInquiry', function(request, response) {
             console.log("No Event matched inquiry offer venue + date. Error: " + JSON.stringify(error));
         });
     }).then(null, function(eventQueryResults) {
-        unless (eventQueryResults === undefined || eventQueryResults.length === 0) {
+        unless (eventQueryResults === undefined || eventQueryResults.length == 0) {
             console.log("Event Query was not empty! Array length is: " + eventQueryResults.length);
             event = eventQueryResults.first();
         }
