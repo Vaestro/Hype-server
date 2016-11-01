@@ -536,6 +536,7 @@ Parse.Cloud.define('submitOfferForInquiry', function(request, response) {
         inquiryOffer.set("message", request.params.message);
         inquiryOffer.set("Host", host);
         inquiryOffer.set("accepted", false);
+        inquiryOffer.set("date", dateTime);
 
         return inquiryOffer.save().then(null, function(error) {
             console.log('Saving inquiry offer failed. Error: ' + JSON.stringify(error));
