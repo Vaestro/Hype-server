@@ -457,6 +457,12 @@ Parse.Cloud.define('submitConnectInquiry', function(request, response) {
             return Parse.Promise.error("There was an error generating your guestlist. Please contact us through chat to resolive this issue as quickly as possible.");
         });
     }).then(function(guestlist) {
+        inquiry.set("guestlistId", guestlist.id);
+        return inquiry.save().then(null, function(error) {
+            console.log("Saving inquiry failed. Error: " + JSON.stringify(error));
+            return Parse.Promise.error("There was an error creating your inquiry");
+        });
+    }).then(function(inquiry) {
         guestlistInvite = new GuestlistInvite();
         guestlistInvite.set("Guestlist", guestlist);
         guestlistInvite.set("event", event);
