@@ -23,7 +23,7 @@ var api = new ParseServer({
    // verbose: true,
     push:{
         ios:{
-            pfx: 'HypeDevelopmentPushCertificate.p12',
+            pfx: 'HypeDevCert.p12',
             bundleId:'com.hypelist.hype',
             production:false
         }
