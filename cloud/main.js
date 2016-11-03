@@ -41,6 +41,8 @@ var Guestlist = Parse.Object.extend("Guestlist");
 var Event = Parse.Object.extend("Event");
 var AdmissionOption = Parse.Object.extend("AdmissionOption");
 var Inquiry = Parse.Object.extend("Inquiry");
+var PNF=requrie('google-libphonenumber').PhoneNumberFormat;
+var phoneUtil=require('google-libphonenumber').PhoneNumberUtil.getInstance();
 
 var User = Parse.User;
 
@@ -184,10 +186,14 @@ Parse.Cloud.define('sendOutInvitations', function(request, response) {
         var eventName = this.eventName;
 
         var textPromises = _.map(arrayOfUnknownGuestlistInvites, function(guestlistInvite) {
-            var phoneNumber = guestlistInvite.get('phoneNumber');
+            
+            var pNumber = guestlistInvite.get('phoneNumber');
+            var phoneNumber=phoneUtil.parse(pNumber,'US');
+            console.log("E164 Phone:",phoneUtil.format(phoneNumber,PNF.E164));
+            var e164PhoneNumber=phoneUtil.format(phoneNumber,PNF.E164);
             var randomCode = guestlistInvite.get('invitationCode');
             return twilio.sendSms({
-                to: phoneNumber,
+                to: e164PhoneNumber,
                 from: twilioPhoneNumber,
                 body: "Hey " + request.user.get("firstName") + " has invited you to " + request.params.eventName + "! " + "Download Hype @ " + request.params.branchUrl
             });
