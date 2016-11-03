@@ -38,11 +38,17 @@ var userOnboard = require('./user_onboard_manager.js');
 var entryCode = require('./code_redemption_manager.js');
 var GuestlistInvite = Parse.Object.extend("GuestlistInvite");
 var Guestlist = Parse.Object.extend("Guestlist");
+var Venue = Parse.Object.extend("Location");
 var Event = Parse.Object.extend("Event");
 var AdmissionOption = Parse.Object.extend("AdmissionOption");
 var Inquiry = Parse.Object.extend("Inquiry");
+
 var PNF=requrie('google-libphonenumber').PhoneNumberFormat;
 var phoneUtil=require('google-libphonenumber').PhoneNumberUtil.getInstance();
+
+var InquiryOffer = Parse.Object.extend("InquiryOffer");
+var ChatRoom = Parse.Object.extend("ChatRoom");
+
 
 var User = Parse.User;
 
@@ -375,8 +381,8 @@ Parse.Cloud.define('createStripeCustomer', function(request, response) {
     var customer;
 
     Parse.Promise.as().then(function() {
-         console.log("createStripeCustomer:",request.params.stripeToken)
-           console.log(request.user.get("username") + " " + request.user.get("lastName"))
+        console.log("createStripeCustomer:", request.params.stripeToken)
+        console.log(request.user.get("username") + " " + request.user.get("lastName"))
 
         return Stripe.customers.create({
             source: request.params.stripeToken,
@@ -406,7 +412,7 @@ Parse.Cloud.define('createStripeCustomer', function(request, response) {
         });
 
     }).then(function() {
-        console.log("customer.sources.data:",customer.sources.data)
+        console.log("customer.sources.data:", customer.sources.data)
 
         response.success(customer.sources.data);
 
@@ -425,7 +431,7 @@ Parse.Cloud.define('submitConnectInquiry', function(request, response) {
 
     var inquiry, event, guestlist, guestlistInvite, admissionOption, owner;
 
-    Parse.Promise.as().then(function(completedTransaction) {
+    Parse.Promise.as().then(function() {
         owner = request.user;
         var token = owner.getSessionToken();
 
@@ -459,6 +465,12 @@ Parse.Cloud.define('submitConnectInquiry', function(request, response) {
             return Parse.Promise.error("There was an error generating your guestlist. Please contact us through chat to resolive this issue as quickly as possible.");
         });
     }).then(function(guestlist) {
+        inquiry.set("guestlistId", guestlist.id);
+        return inquiry.save().then(null, function(error) {
+            console.log("Saving inquiry failed. Error: " + JSON.stringify(error));
+            return Parse.Promise.error("There was an error creating your inquiry");
+        });
+    }).then(function(inquiry) {
         guestlistInvite = new GuestlistInvite();
         guestlistInvite.set("Guestlist", guestlist);
         guestlistInvite.set("event", event);
@@ -480,6 +492,95 @@ Parse.Cloud.define('submitConnectInquiry', function(request, response) {
         response.success(guestlistInvite);
     }, function(error) {
         response.error(error);
+    });
+});
+
+/**
+ * submit Offer for Inquiry function
+ *
+ */
+Parse.Cloud.define('submitOfferForInquiry', function(request, response) {
+
+    var inquiry, event, venue, host, inquiryOffer;
+
+    Parse.Promise.as().then(function() {
+        host = request.user;
+        var token = host.getSessionToken();
+
+        var offerDate = request.params.dateTime;
+
+        var minDateRange = new Date(offerDate)
+        minDateRange.setHours(minDateRange.getHours() - 4)
+
+        var maxDateRange = new Date(offerDate)
+        maxDateRange.setHours(maxDateRange.getHours() + 4)
+
+        var queryEvent = new Parse.Query('Event');
+        queryEvent.equalTo('venueName', request.params.venueName);
+        queryEvent.greaterThanOrEqualTo('date', minDateRange);
+        queryEvent.lessThanOrEqualTo('date', maxDateRange);
+        queryEvent.include('location');
+
+        return queryEvent.find().then(null, function(error) {
+            console.log("No Event matched inquiry offer venue + date. Error: " + JSON.stringify(error));
+        });
+    }).then(function(eventQueryResults) {
+        if (eventQueryResults === undefined || eventQueryResults.length == 0) {
+            var queryVenue = new Parse.Query('Location')
+                .equalTo('name', request.params.venueName);
+            return queryVenue.first().then(null, function(error) {
+                console.log("Querying Venue failed. Error: " + JSON.stringify(error));
+            });
+        } else {
+            event = eventQueryResults[0];
+            return event.get('location');
+        }
+    }).then(function(venueQueryResult) {
+        venue = venueQueryResult;
+
+        inquiryOffer = new InquiryOffer();
+        if (typeof event !== 'undefined') inquiryOffer.set("Event", event);
+        if (typeof venue !== 'undefined') inquiryOffer.set("Venue", venue);
+        inquiryOffer.set("message", request.params.message);
+        inquiryOffer.set("Host", host);
+        inquiryOffer.set("accepted", false);
+        inquiryOffer.set("date", request.params.dateTime);
+
+        return inquiryOffer.save().then(null, function(error) {
+            console.log('Saving inquiry offer failed. Error: ' + JSON.stringify(error));
+            return Parse.Promise.error("There was an error submitting your inquiry offer. Please contact us through chat to resolve this issue as quick as possible.");
+        });
+    }).then(function(inquiryOffer) {
+        response.success(inquiryOffer);
+    }, function(error) {
+        response.error(error);
+    });
+});
+
+
+/**
+ * Create chat room funciton
+ *
+ */
+
+Parse.Cloud.define('createChatRoom', function(request, response) {
+    var userId = request.params.userId;
+    var hostId = request.params.hostId;
+    var curUser = new User();
+    curUser.id = userId;
+    var host = new User();
+    host.id = hostId;
+    var chatRoom = new ChatRoom();
+    chatRoom.set("promoter", host);
+    chatRoom.set("client", curUser);
+    chatRoom.set("title", "Your Inquiry For The Club");
+    chatRoom.save(null, {
+        success: function(chatRoom) {
+            response.success(chatRoom);
+        },
+        error: function(object, error) {
+            response.error(error);
+        }
     });
 });
 
@@ -523,7 +624,7 @@ Parse.Cloud.define('completeOrder', function(request, response) {
         completedTransaction = new Parse.Object('CompletedTransaction');
         completedTransaction.set("description", request.params.description);
         completedTransaction.set("date", new Date());
-        completedTransaction.set("customerName", request.params.customerName||customer.get("username"));
+        completedTransaction.set("customerName", request.params.customerName || customer.get("username"));
         completedTransaction.set("venue", request.params.venue);
         completedTransaction.set("amountPaid", request.params.amount.toFixed(2));
         completedTransaction.set("customer", customer);
@@ -729,9 +830,9 @@ Parse.Cloud.define('retrievePaymentInfo', function(request, response) {
     // Parse.Cloud.useMasterKey();
 
     Parse.Promise.as().then(function() {
-         console.log("retrieving payment info",request.user)
-         // var currentUser = Parse.User.current();
-         // console.log("server side loggedin?:",currentUser)
+        console.log("retrieving payment info", request.user)
+            // var currentUser = Parse.User.current();
+            // console.log("server side loggedin?:",currentUser)
         var stripeCustomerId = request.user.get("stripeCustomerId");
 
         if (stripeCustomerId) {
@@ -748,7 +849,7 @@ Parse.Cloud.define('retrievePaymentInfo', function(request, response) {
 
         var customerInfo;
         (_.isEmpty(customer)) ? customerInfo = null: customerInfo = customer.sources.data;
-                console.log("cutomerInfo: ",customerInfo);
+        console.log("cutomerInfo: ", customerInfo);
         response.success(customerInfo);
     }, function(error) {
         response.error(error);
@@ -1082,10 +1183,10 @@ var queue = kue.createQueue({
 queue.process('scheduledEventUpdate_27', function(job, done) {
 
 
-     var d = new Date();
-        d.setHours(8);
-        d.setMinutes(10);
-        d.setSeconds(0);
+    var d = new Date();
+    d.setHours(8);
+    d.setMinutes(10);
+    d.setSeconds(0);
     td = new Date(d.getTime() + (24 * 60 * 60 * 1000));
 
     console.log('Tomorrow update time is:', td);
@@ -1124,7 +1225,7 @@ queue.process('scheduledEventUpdate_27', function(job, done) {
                 newEvent.set("venueName", event.get("venueName"));
                 console.log('newEvent', newEvent.get("date"), 'is done');
                 return newEvent.save();
-            }else{
+            } else {
                 console.log("Event is not Repeated Event");
             }
         })
