@@ -20,12 +20,12 @@ var api = new ParseServer({
     fileKey: process.env.FILE_KEY || 'myAppId',
     masterKey: process.env.MASTER_KEY || '', //Add your master key here. Keep it secret!
     serverURL: process.env.SERVER_URL || 'http://localhost:1337/parse', // Don't forget to change to https if needed
-   // verbose: true,
-    push:{
-        ios:{
+    verbose: true,
+    push: {
+        ios: {
             pfx: 'HypeDevelopmentPushCertificate.p12',
-            bundleId:'com.hypelist.hype',
-            production:false
+            bundleId: 'com.hypelist.hype',
+            production: false
         }
     }
 
@@ -45,8 +45,8 @@ var dashboard = new ParseDashboard({
         "user": "hypeking",
         "pass": "theHypel1st"
     }, {
-      "user": "hypeman",
-      "pass": "dunningthehype"
+        "user": "hypeman",
+        "pass": "dunningthehype"
     }]
 }, true);
 // Client-keys like the javascript key or the .NET key are not necessary with parse-server
