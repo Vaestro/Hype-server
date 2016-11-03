@@ -43,7 +43,7 @@ var Event = Parse.Object.extend("Event");
 var AdmissionOption = Parse.Object.extend("AdmissionOption");
 var Inquiry = Parse.Object.extend("Inquiry");
 
-var PNF=requrie('google-libphonenumber').PhoneNumberFormat;
+var PNF=require('google-libphonenumber').PhoneNumberFormat;
 var phoneUtil=require('google-libphonenumber').PhoneNumberUtil.getInstance();
 
 var InquiryOffer = Parse.Object.extend("InquiryOffer");
