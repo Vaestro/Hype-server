@@ -585,6 +585,44 @@ Parse.Cloud.define('createChatRoom', function(request, response) {
 });
 
 /**
+ * Send verication code text
+ *
+ */
+Parse.Cloud.define('sendVerifySMS', function(request, response) {
+    console.log("SEND VERIFY HIT");
+
+    twilio.sendSms({
+        to: "+15715502992",
+        from: twilioPhoneNumber,
+        body: "TEST TEXT"
+    });
+
+});
+
+/**
+ * Generate verification code
+ *
+ */
+Parse.Cloud.define('generateVerifcationCode', function(request, response) {
+    console.log("GENERATION HIT");
+    var code = "";
+    var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
+    for( var i=0; i < 4; i++ )
+        code += possible.charAt(Math.floor(Math.random() * possible.length));
+
+    console.log(code);
+});
+
+/**
+ * Check if the verification code is valid
+ *
+ */
+Parse.Cloud.define('checkVerificationCode', function(request, response) {
+
+});
+
+/**
  * complete order function
  *
  */
