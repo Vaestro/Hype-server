@@ -192,7 +192,7 @@ Parse.Cloud.define('sendOutInvitations', function(request, response) {
         var eventName = this.eventName;
 
         var textPromises = _.map(arrayOfUnknownGuestlistInvites, function(guestlistInvite) {
-            
+
             var pNumber = guestlistInvite.get('phoneNumber');
             var phoneNumber=phoneUtil.parse(pNumber,'US');
             console.log("E164 Phone:",phoneUtil.format(phoneNumber,PNF.E164));
@@ -1212,7 +1212,7 @@ function Serialize(obj) {
 
 var kue = require('kue');
 var queue = kue.createQueue({
-    redis: 'redis://h:p130l529a4jg211ap91bd2gkqq2@ec2-54-163-236-235.compute-1.amazonaws.com:18809',
+    redis: 'redis://h:p130l529a4jg211ap91bd2gkqq2@ec2-184-73-200-8.compute-1.amazonaws.com:7149',
     skipConfig: true
 });
 
