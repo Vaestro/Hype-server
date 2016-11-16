@@ -589,36 +589,17 @@ Parse.Cloud.define('createChatRoom', function(request, response) {
  *
  */
 Parse.Cloud.define('sendVerifySMS', function(request, response) {
-    console.log("SEND VERIFY HIT");
-
+    var userPN = request.params.userPN;
+    var code = request.params.code;
+    if(!userPN || !code) {
+        response.error("Didn't get all the parameters");
+    }
     twilio.sendSms({
-        to: "+15715502992",
+        to: userPN,
         from: twilioPhoneNumber,
-        body: "TEST TEXT"
+        body: "YOUR CODE IS " + code
     });
-
-});
-
-/**
- * Generate verification code
- *
- */
-Parse.Cloud.define('generateVerifcationCode', function(request, response) {
-    console.log("GENERATION HIT");
-    var code = "";
-    var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-
-    for( var i=0; i < 4; i++ )
-        code += possible.charAt(Math.floor(Math.random() * possible.length));
-
-    console.log(code);
-});
-
-/**
- * Check if the verification code is valid
- *
- */
-Parse.Cloud.define('checkVerificationCode', function(request, response) {
+    response.success("Verification code was sent");
 
 });
 
