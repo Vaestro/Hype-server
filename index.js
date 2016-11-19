@@ -7,7 +7,7 @@ var ParseServer = require('parse-server').ParseServer;
 var path = require('path');
 var ParseDashboard = require('parse-dashboard');
 
-var databaseUri = process.env.DATABASE_URI || process.env.MONGODB_URI;
+var databaseUri = process.env.DATABASE_URI;
 
 if (!databaseUri) {
     console.log('DATABASE_URI not specified, falling back to localhost.');
@@ -39,7 +39,7 @@ var dashboard = new ParseDashboard({
         "masterKey": process.env.MASTER_KEY,
         "javascriptKey": process.env.JAVASCRIPT_KEY,
         "restKey": process.env.REST_KEY,
-        "appName": 'hypelist_dev',
+        "appName": 'hype',
         production: false
     }],
     "users": [{
@@ -67,7 +67,7 @@ app.use('/dashboard', dashboard);
 
 // Parse Server plays nicely with the rest of your web routes
 app.get('/', function(req, res) {
-    res.status(200).send('I dream of being a website.  Please star the parse-server repo on GitHub!');
+    res.status(200).send('Go away');
 });
 
 // There will be a test page available on the /test path of your server url
@@ -79,7 +79,7 @@ app.get('/test', function(req, res) {
 var port = process.env.PORT || 1337;
 var httpServer = require('http').createServer(app);
 httpServer.listen(port, function() {
-    console.log('parse-server-example running on port ' + port + '.');
+    console.log('hype-server running on port ' + port + '.');
 });
 
 // This will enable the Live Query real-time server

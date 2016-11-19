@@ -4,25 +4,22 @@
  */
 var moment = require('moment');
 
-var twilioSID = 'AC5769b578ec09cd8522d36f3b12ac07c7';
-var twilioAuthToken = 'b6991654dae45aa26f4219335cd63418';
-var twilioPhoneNumber = '+18443114973';
-var queryInstallation = new Parse.Query(Parse.Installation);
+var twilioSID = process.env.TWILIO_SID;
+var twilioAuthToken = process.env.TWILIO_AUTH_TOKEN;
+var twilioPhoneNumber = process.env.TWILIO_PHONE_NUMBER;
 var twilio = require('twilio')(twilioSID, twilioAuthToken);
 var Mixpanel = require('mixpanel');
-var mixpanelToken = "2946053341530a84c490a107bd3e5fff";
+var mixpanelToken = process.MIXPANEL_TOKEN;
 var Mailgun = require('mailgun-js')({
     apiKey: 'gethype.co',
-    domain: 'key-2beb52eae9bf4631d909ebaadaec1264'
+    domain: process.env.MAILGUN_DOMAIN
 });
 // var mandrill = require('mandrill-api/mandrill');
 // var mandrill_client = new mandrill.Mandrill('4Rd4imd3JMZZrIqktdPqEA');
 var mandrill_function = require("./mandrill_email.js");
 
-var Stripe = require('stripe')('sk_test_OKwk3On1VYINpv2wJX2PMnCn');
-
-var STRIPE_SECRET_KEY = 'sk_test_OKwk3On1VYINpv2wJX2PMnCn';
 var STRIPE_API_BASE_URL = 'api.stripe.com/v1';
+var Stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
 var INTERCOM_BASE_URL = 'eixn8wsn:5c0f7a0f42d3705369ed53d5d0c6695039a3ab58@api.intercom.io';
 
@@ -36,23 +33,20 @@ var checkInManagement = require('./check_in_management.js');
 var guestlistTicketManagement = require('./guestlist_ticket_manager.js');
 var userOnboard = require('./user_onboard_manager.js');
 var entryCode = require('./code_redemption_manager.js');
+
+var queryInstallation = new Parse.Query(Parse.Installation);
 var GuestlistInvite = Parse.Object.extend("GuestlistInvite");
 var Guestlist = Parse.Object.extend("Guestlist");
 var Venue = Parse.Object.extend("Location");
 var Event = Parse.Object.extend("Event");
 var AdmissionOption = Parse.Object.extend("AdmissionOption");
 var Inquiry = Parse.Object.extend("Inquiry");
+var InquiryOffer = Parse.Object.extend("InquiryOffer");
+var ChatRoom = Parse.Object.extend("ChatRoom");
+var User = Parse.User;
 
 var PNF=require('google-libphonenumber').PhoneNumberFormat;
 var phoneUtil=require('google-libphonenumber').PhoneNumberUtil.getInstance();
-
-var InquiryOffer = Parse.Object.extend("InquiryOffer");
-var ChatRoom = Parse.Object.extend("ChatRoom");
-
-
-var User = Parse.User;
-
-
 
 Parse.Cloud.define('sendOutInvitations', function(request, response) {
     var phoneNumbers = [];
