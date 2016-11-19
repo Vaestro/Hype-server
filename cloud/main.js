@@ -595,10 +595,9 @@ Parse.Cloud.define('sendVerifySMS', function(request, response) {
     twilio.sendSms({
         to: userPN,
         from: twilioPhoneNumber,
-        body: "YOUR CODE IS " + code
+        body: "Your Hype verification code is " + code
     });
     response.success("Verification code was sent");
-
 });
 
 /**
@@ -606,9 +605,6 @@ Parse.Cloud.define('sendVerifySMS', function(request, response) {
  *
  */
 Parse.Cloud.define('completeOrder', function(request, response) {
-
-
-
     var completedTransaction, event, guestlist, customer, guestlistInvite, admissionOption;
 
     Parse.Promise.as().then(function() {
@@ -1236,6 +1232,11 @@ queue.process('scheduledEventUpdate_27', function(job, done) {
                 newEvent.set("doesRepeat", event.get("doesRepeat"));
                 newEvent.set("location", event.get("location"));
                 newEvent.set('locationId', event.get('locationId'));
+                if (event.get("closeTime")) newEvent.set("closeTime", event.get("closeTime"));
+                if (event.get("promoInfo")) newEvent.set("promoInfo", event.get("promoInfo"));
+
+                if (event.get("attire")) newEvent.set("attire", event.get("attire"));
+                if (event.get("featured")) newEvent.set("featured", event.get("featured"));
                 if (event.get("organizer")) newEvent.set("organizer", event.get("organizer"));
                 if (event.get("organizerId")) newEvent.set("organizerId", event.get("organizerId"));
                 if (event.get("title")) newEvent.set("title", event.get("title"));
