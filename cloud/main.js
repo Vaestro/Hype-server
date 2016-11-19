@@ -583,6 +583,25 @@ Parse.Cloud.define('createChatRoom', function(request, response) {
 });
 
 /**
+ * Send verication code text
+ *
+ */
+Parse.Cloud.define('sendVerifySMS', function(request, response) {
+    var userPN = request.params.userPN;
+    var code = request.params.code;
+    if(!userPN || !code) {
+        response.error("Didn't get all the parameters");
+    }
+    twilio.sendSms({
+        to: userPN,
+        from: twilioPhoneNumber,
+        body: "YOUR CODE IS " + code
+    });
+    response.success("Verification code was sent");
+
+});
+
+/**
  * complete order function
  *
  */
