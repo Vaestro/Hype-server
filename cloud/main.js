@@ -55,7 +55,7 @@ var User = Parse.User;
 
 
 Parse.Cloud.define('sendOutInvitations', function(request, response) {
-
+    var phoneNumbers = [];
     var knownGuests = [];
     var unknownGuestPhoneNumbers = [];
     var event;
@@ -64,9 +64,15 @@ Parse.Cloud.define('sendOutInvitations', function(request, response) {
 
         event = new Event();
         event.id = request.params.eventId;
+        phoneNumbers= _.map(request.params.guestPhoneNumbers, function(phoneNumber) {
+          var parsedNumber = phoneUtil.parse(phoneNumber,'US');
+          console.log("E164 Phone:",phoneUtil.format(parsedNumber,PNF.E164));
+          return e164PhoneNumber=phoneUtil.format(parsedNumber,PNF.E164);
+        })
+
 
         //find guests by phone number
-        var queryUser = new Parse.Query(Parse.User).containedIn("phoneNumber", request.params.guestPhoneNumbers);
+        var queryUser = new Parse.Query(Parse.User).containedIn("phoneNumber", phoneNumbers);
         return queryUser.find().then(null, function(error) {
             console.log("There was an error searching for guests");
             return Parse.Promise.error("There was an error in sending out the invites. Please Try again")
@@ -78,7 +84,7 @@ Parse.Cloud.define('sendOutInvitations', function(request, response) {
             return user.get('phoneNumber');
         });
 
-        unknownGuestPhoneNumbers = _.filter(request.params.guestPhoneNumbers, function(phoneNumber) {
+        unknownGuestPhoneNumbers = _.filter(phoneNumbers, function(phoneNumber) {
             return !_.contains(knownGuestPhoneNumbers, phoneNumber);
         });
 
@@ -193,13 +199,11 @@ Parse.Cloud.define('sendOutInvitations', function(request, response) {
 
         var textPromises = _.map(arrayOfUnknownGuestlistInvites, function(guestlistInvite) {
 
-            var pNumber = guestlistInvite.get('phoneNumber');
-            var phoneNumber=phoneUtil.parse(pNumber,'US');
-            console.log("E164 Phone:",phoneUtil.format(phoneNumber,PNF.E164));
-            var e164PhoneNumber=phoneUtil.format(phoneNumber,PNF.E164);
+            var phoneNumber = guestlistInvite.get('phoneNumber');
+
             var randomCode = guestlistInvite.get('invitationCode');
             return twilio.sendSms({
-                to: e164PhoneNumber,
+                to: phoneNumber,
                 from: twilioPhoneNumber,
                 body: "Hey " + request.user.get("firstName") + " has invited you to " + request.params.eventName + "! " + "Download Hype @ " + request.params.branchUrl
             });
