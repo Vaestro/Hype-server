@@ -649,13 +649,12 @@ Parse.Cloud.define('completeOrder', function(request, response) {
 
         // customer = new Parse.User();
         // customer.id = request.user.id;
-
-        customer = request.user;
-        var token = customer.getSessionToken();
-
         event = new Event();
         event.id = request.params.eventId;
 
+        customer = request.user;
+        var token = customer.getSessionToken();
+        
         admissionOption = new AdmissionOption();
         admissionOption.id = request.params.admissionOptionId;
 
@@ -740,8 +739,8 @@ Parse.Cloud.define('completeOrder', function(request, response) {
         var message = {
 
             "html": "<p><b>" + request.params.description + "</b></p></br><p>PLEASE PRESENT TICKET TO DOORMAN</p>",
-            "text": "Example text content, Hello World",
-            "subject": "Your ticket confirmation for" + " " + " on " + request.params.eventTime + " ",
+            "text": "Your ticket for Hype",
+            "subject": "Your ticket confirmation for " + event.get("venueName") + " on " + moment(request.params.eventTime).format('MM/DD'),
             "from_email": "contact@gethype.co",
             "from_name": "Hype",
             "to": [{
