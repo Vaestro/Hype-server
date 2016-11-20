@@ -631,8 +631,7 @@ Parse.Cloud.define('sendVerifySMS', function(request, response) {
  */
 Parse.Cloud.define('completeOrder', function(request, response) {
     var completedTransaction, event, guestlist, customer, guestlistInvite, admissionOption;
-    event = new Event();
-    event.id = request.params.eventId;
+
     Parse.Promise.as().then(function() {
 
         if (request.params.amount >= 0.5) {
@@ -650,12 +649,12 @@ Parse.Cloud.define('completeOrder', function(request, response) {
 
         // customer = new Parse.User();
         // customer.id = request.user.id;
+        event = new Event();
+        event.id = request.params.eventId;
 
         customer = request.user;
         var token = customer.getSessionToken();
-
-
-
+        
         admissionOption = new AdmissionOption();
         admissionOption.id = request.params.admissionOptionId;
 
@@ -737,12 +736,11 @@ Parse.Cloud.define('completeOrder', function(request, response) {
         console.log("request.params.description", request.params.description);
         // console.log("event.location:",event.location.get('name') );
         console.log("request.params.eventTime:", request.params.eventTime);
-        var venueName = event.get('venueName')
         var message = {
 
             "html": "<p><b>" + request.params.description + "</b></p></br><p>PLEASE PRESENT TICKET TO DOORMAN</p>",
             "text": "Your ticket for Hype",
-            "subject": "Your ticket confirmation for " + venueName + " on " + moment(request.params.eventTime).format('MM/DD'),
+            "subject": "Your ticket confirmation for " + event.get("venueName") + " on " + moment(request.params.eventTime).format('MM/DD'),
             "from_email": "contact@gethype.co",
             "from_name": "Hype",
             "to": [{
