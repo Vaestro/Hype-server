@@ -740,8 +740,8 @@ Parse.Cloud.define('completeOrder', function(request, response) {
         var message = {
 
             "html": "<p><b>" + request.params.description + "</b></p></br><p>PLEASE PRESENT TICKET TO DOORMAN</p>",
-            "text": "Example text content, Hello World",
-            "subject": "Your ticket confirmation for" + " " + " on " + request.params.eventTime + " ",
+            "text": "Your ticket for Hype",
+            "subject": "Your ticket confirmation for" + event.get('venueName') + " on " + moment(request.params.eventTime).format('MM/DD'),
             "from_email": "contact@gethype.co",
             "from_name": "Hype",
             "to": [{
