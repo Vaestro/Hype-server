@@ -592,7 +592,7 @@ Parse.Cloud.define('createSupportChatRoom', function(request, response) {
     var curUser = new User();
     curUser.id = userId;
     var host = new User();
-    host.id = "Qeuyb9rJYu";
+    host.id = "ASWjgdcR5b";
     var chatRoom = new ChatRoom();
     chatRoom.set("promoter", host);
     chatRoom.set("client", curUser);
