@@ -583,6 +583,31 @@ Parse.Cloud.define('createChatRoom', function(request, response) {
 });
 
 /**
+ * Create hype support chat
+ *
+ */
+
+Parse.Cloud.define('createSupportChatRoom', function(request, response) {
+    var userId = request.params.userId;
+    var curUser = new User();
+    curUser.id = userId;
+    var host = new User();
+    host.id = "Qeuyb9rJYu";
+    var chatRoom = new ChatRoom();
+    chatRoom.set("promoter", host);
+    chatRoom.set("client", curUser);
+    chatRoom.set("title", "Your Inquiry For The Club");
+    chatRoom.save(null, {
+        success: function(chatRoom) {
+            response.success(chatRoom);
+        },
+        error: function(object, error) {
+            response.error(error);
+        }
+    });
+});
+
+/**
  * Send verication code text
  *
  */
