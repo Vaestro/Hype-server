@@ -1,5 +1,5 @@
 var mandrill = require('mandrill-api/mandrill');
-var mandrill_client = new mandrill.Mandrill('bl1nnYhj1De57xe');
+var mandrill_client = new mandrill.Mandrill('QkipqeRTRMs4_MB1I7alCQ');
 
 mandrill_client.sendTemplate = function(templateName, templateContent, message, async, ipPool, sendAt) {
     request = {

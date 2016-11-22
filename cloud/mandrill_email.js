@@ -1,4 +1,4 @@
-  
+
 module.exports = {mandrill_email:mandrill_email};
 
 
@@ -8,7 +8,7 @@ module.exports = {mandrill_email:mandrill_email};
 function mandrill_email(message){
 
    var mandrill = require('mandrill-api/mandrill');
-   var mandrill_client = new mandrill.Mandrill('4Rd4imd3JMZZrIqktdPqEA');
+   var mandrill_client = new mandrill.Mandrill('QkipqeRTRMs4_MB1I7alCQ');
    var async = false;
    var ip_pool = "Main Pool";
    var send_at = "2016-08-23 12:00:00";
@@ -31,7 +31,3 @@ function mandrill_email(message){
 });
 
 }
-
-
-   
-
