@@ -608,6 +608,46 @@ Parse.Cloud.define('createSupportChatRoom', function(request, response) {
 });
 
 /**
+ * Create hype support chat if it doesn't exist
+ *
+ */
+
+Parse.Cloud.define('checkAndCreateSupportChatRoom', function(request, response) {
+    var userId = request.params.userId;
+    var query = new Parse.Query(ChatRoom);
+    var host = new User();
+    host.id = "ASWjgdcR5b";
+    var curUser = new User();
+    curUser.id = userId;
+    query.equalTo("promoter", host);
+    query.equalTo("client", curUser);
+    query.find({
+        success: function(results) {
+            if(results.length == 0) {
+                
+                var chatRoom = new ChatRoom();
+                chatRoom.set("promoter", host);
+                chatRoom.set("client", curUser);
+                chatRoom.set("title", "Your Inquiry For The Club");
+                chatRoom.save(null, {
+                    success: function(chatRoom) {
+                        response.success(chatRoom);
+                    },
+                    error: function(object, error) {
+                        response.error(error);
+                        }
+                });
+            } else {
+                response.success("Already have a support chat room");
+            }
+        },
+        error: function(error) {
+            response.error(error);
+        }
+    });
+});
+
+/**
  * Send verication code text
  *
  */
