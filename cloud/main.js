@@ -1009,6 +1009,7 @@ Parse.Cloud.define('createReservation', function(request, response) {
         guestlistInvite.set("phoneNumber", request.user.get('phoneNumber'));
         guestlistInvite.set("date", new Date(Date.parse(request.params.eventTime)));
         guestlistInvite.set("didOpen", false);
+        guestlistInvite.set("admissionDescription", request.params.description);
 
         return guestlistInvite.save({
             useMasterKey: true
