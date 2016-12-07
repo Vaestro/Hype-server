@@ -45,8 +45,8 @@ var InquiryOffer = Parse.Object.extend("InquiryOffer");
 var ChatRoom = Parse.Object.extend("ChatRoom");
 var User = Parse.User;
 
-var PNF=require('google-libphonenumber').PhoneNumberFormat;
-var phoneUtil=require('google-libphonenumber').PhoneNumberUtil.getInstance();
+var PNF = require('google-libphonenumber').PhoneNumberFormat;
+var phoneUtil = require('google-libphonenumber').PhoneNumberUtil.getInstance();
 
 Parse.Cloud.define('sendOutInvitations', function(request, response) {
     var phoneNumbers = [];
@@ -58,10 +58,10 @@ Parse.Cloud.define('sendOutInvitations', function(request, response) {
 
         event = new Event();
         event.id = request.params.eventId;
-        phoneNumbers= _.map(request.params.guestPhoneNumbers, function(phoneNumber) {
-          var parsedNumber = phoneUtil.parse(phoneNumber,'US');
-          console.log("E164 Phone:",phoneUtil.format(parsedNumber,PNF.E164));
-          return e164PhoneNumber=phoneUtil.format(parsedNumber,PNF.E164);
+        phoneNumbers = _.map(request.params.guestPhoneNumbers, function(phoneNumber) {
+            var parsedNumber = phoneUtil.parse(phoneNumber, 'US');
+            console.log("E164 Phone:", phoneUtil.format(parsedNumber, PNF.E164));
+            return e164PhoneNumber = phoneUtil.format(parsedNumber, PNF.E164);
         })
 
 
@@ -550,6 +550,41 @@ Parse.Cloud.define('submitOfferForInquiry', function(request, response) {
             return Parse.Promise.error("There was an error submitting your inquiry offer. Please contact us through chat to resolve this issue as quick as possible.");
         });
     }).then(function(inquiryOffer) {
+        inquiry = new Inquiry();
+        inquiry.id = request.params.inquiryId;
+        var guestlist = new Guestlist();
+        guestlist.id = inquiry.get("guestlistId")
+
+        var queryForGuestlistInvites = new Parse.Query(Parse.GuestlistInvite).equalTo("Guestlist", guestlist);
+        return queryForGuestlistInvites.find().then(null, function(error) {
+            console.log("There was an error searching for guests");
+            return Parse.Promise.error("There was an error in sending out the invites. Please Try again")
+        });
+    }).then(function(guestlistInvites) {
+
+        if (_.isEmpty(guestlistInvites)) {
+            return Parse.Promise.as([]);
+        }
+
+        var installationPromises = _.map(guestlistInvites, function(guestlistInvite) {
+
+            guest = new Parse.User();
+            guest.id = guestlistInvite.get("Guest").id;
+
+            queryInstallation.equalTo('deviceType', 'ios');
+            queryInstallation.equalTo("User", guest);
+
+            return Parse.Push.send({
+                where: queryInstallation,
+                data: {
+                    "alert": host.get("firstName") + ' has sent you an offer for ' + venue.get("name"),
+                    "badge": "Increment",
+                }
+            }, {
+                useMasterKey: true
+            });
+        });
+    }).then(function(inquiryOffer) {
         response.success(inquiryOffer);
     }, function(error) {
         response.error(error);
@@ -624,7 +659,7 @@ Parse.Cloud.define('checkAndCreateSupportChatRoom', function(request, response) 
     query.equalTo("client", curUser);
     query.find({
         success: function(results) {
-            if(results.length == 0) {
+            if (results.length == 0) {
 
                 var chatRoom = new ChatRoom();
                 chatRoom.set("promoter", host);
@@ -636,7 +671,7 @@ Parse.Cloud.define('checkAndCreateSupportChatRoom', function(request, response) 
                     },
                     error: function(object, error) {
                         response.error(error);
-                        }
+                    }
                 });
             } else {
                 response.success("Already have a support chat room");
@@ -655,7 +690,7 @@ Parse.Cloud.define('checkAndCreateSupportChatRoom', function(request, response) 
 Parse.Cloud.define('sendVerifySMS', function(request, response) {
     var userPN = request.params.userPN;
     var code = request.params.code;
-    if(!userPN || !code) {
+    if (!userPN || !code) {
         response.error("Didn't get all the parameters");
     }
     twilio.sendSms({
@@ -1020,46 +1055,46 @@ Parse.Cloud.define('createReservation', function(request, response) {
         });
     }).then(function(guestlistInvite) {
 
-    //     savedGuestlistInvite = guestlistInvite;
-    //
-    //
-    //     return Parse.Cloud.httpRequest({
-    //         url: "https://" + INTERCOM_BASE_URL + "/users?user_id=" + customer.id,
-    //         headers: {
-    //             'Accept': 'application/json'
-    //         },
-    //         followRedirects: true
-    //     }).then(null, function(httpResponse) {
-    //         console.error("Error fetching intercom id. HttpResponse: " + httpResponse.status);
-    //         return Parse.Promise.error("There was an error generating your ticket. Please contact us through chat to resolve this issue as quickly as possible.");
-    //     });
-    // }).then(function(httpResponse) {
-    //
-    //     return Parse.Cloud.httpRequest({
-    //         url: 'https://' + INTERCOM_BASE_URL + '/messages',
-    //         method: 'POST',
-    //         headers: {
-    //             'Accept': 'application/json',
-    //             'Content-Type': 'application/json'
-    //         },
-    //         body: {
-    //             "message_type": "inapp",
-    //             "body": 'Hey ' + request.user.get('firstName') + ', you have successfully reserved the ' + request.params.descriptionName + ' @ ' + request.params.locationName + ' for ' + moment(request.params.eventTime).format('MM/DD') +
-    //                 '. When you arrive at the venue, simply walk up to the front with your party and let them know you booked a table through Hype under your name. If you have any questions, message us here and we will be glad to help!',
-    //             "from": {
-    //                 "type": "admin",
-    //                 "id": "428923"
-    //             },
-    //             "to": {
-    //                 "type": "user",
-    //                 "id": (JSON.parse(httpResponse.text))["id"]
-    //             }
-    //         }
-    //     }).then(null, function(httpResponse) {
-    //         console.error("Error fetching sending message. HttpResponse: " + httpResponse.status);
-    //         return Parse.Promise.error("There was an error setting up a conversation. Please contact us through chat to resolve this issue as quickly as possible.");
-    //     });
-    // }).then(function(httpResponse) {
+        //     savedGuestlistInvite = guestlistInvite;
+        //
+        //
+        //     return Parse.Cloud.httpRequest({
+        //         url: "https://" + INTERCOM_BASE_URL + "/users?user_id=" + customer.id,
+        //         headers: {
+        //             'Accept': 'application/json'
+        //         },
+        //         followRedirects: true
+        //     }).then(null, function(httpResponse) {
+        //         console.error("Error fetching intercom id. HttpResponse: " + httpResponse.status);
+        //         return Parse.Promise.error("There was an error generating your ticket. Please contact us through chat to resolve this issue as quickly as possible.");
+        //     });
+        // }).then(function(httpResponse) {
+        //
+        //     return Parse.Cloud.httpRequest({
+        //         url: 'https://' + INTERCOM_BASE_URL + '/messages',
+        //         method: 'POST',
+        //         headers: {
+        //             'Accept': 'application/json',
+        //             'Content-Type': 'application/json'
+        //         },
+        //         body: {
+        //             "message_type": "inapp",
+        //             "body": 'Hey ' + request.user.get('firstName') + ', you have successfully reserved the ' + request.params.descriptionName + ' @ ' + request.params.locationName + ' for ' + moment(request.params.eventTime).format('MM/DD') +
+        //                 '. When you arrive at the venue, simply walk up to the front with your party and let them know you booked a table through Hype under your name. If you have any questions, message us here and we will be glad to help!',
+        //             "from": {
+        //                 "type": "admin",
+        //                 "id": "428923"
+        //             },
+        //             "to": {
+        //                 "type": "user",
+        //                 "id": (JSON.parse(httpResponse.text))["id"]
+        //             }
+        //         }
+        //     }).then(null, function(httpResponse) {
+        //         console.error("Error fetching sending message. HttpResponse: " + httpResponse.status);
+        //         return Parse.Promise.error("There was an error setting up a conversation. Please contact us through chat to resolve this issue as quickly as possible.");
+        //     });
+        // }).then(function(httpResponse) {
 
         response.success(guestlistInvite.id);
 
