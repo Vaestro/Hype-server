@@ -623,7 +623,7 @@ Parse.Cloud.define('createChatRoom', function(request, response) {
                         response.error(error);
                     }
                 });
-                
+
             } else {
                 response.success("Already have a support chat room");
             }
@@ -637,7 +637,7 @@ Parse.Cloud.define('createChatRoom', function(request, response) {
 
 
 
-    
+
 });
 
 /**
