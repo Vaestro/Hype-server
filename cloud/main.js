@@ -563,24 +563,45 @@ Parse.Cloud.define('submitOfferForInquiry', function(request, response) {
  */
 
 Parse.Cloud.define('createChatRoom', function(request, response) {
+    var query = new Parse.Query(ChatRoom);
     var userId = request.params.userId;
     var hostId = request.params.hostId;
     var curUser = new User();
     curUser.id = userId;
     var host = new User();
     host.id = hostId;
-    var chatRoom = new ChatRoom();
-    chatRoom.set("promoter", host);
-    chatRoom.set("client", curUser);
-    chatRoom.set("title", "Your Inquiry For The Club");
-    chatRoom.save(null, {
-        success: function(chatRoom) {
-            response.success(chatRoom);
+    query.equalTo("promoter", host);
+    query.equalTo("client", curUser);
+    query.find({
+        success: function(results) {
+            if(results.length == 0) {
+                var chatRoom = new ChatRoom();
+                chatRoom.set("promoter", host);
+                chatRoom.set("client", curUser);
+                chatRoom.set("title", "Your Inquiry For The Club");
+                chatRoom.save(null, {
+                    success: function(chatRoom) {
+                        response.success(chatRoom);
+                    },
+                    error: function(object, error) {
+                        response.error(error);
+                    }
+                });
+                
+            } else {
+                response.success("Already have a support chat room");
+            }
         },
-        error: function(object, error) {
+        error: function(error) {
             response.error(error);
         }
     });
+
+
+
+
+
+    
 });
 
 /**
