@@ -661,43 +661,6 @@ Parse.Cloud.define('checkAndCreateSupportChatRoom', function(request, response) 
                         }
                 });
             } else {
-                var chatMessage = new ChatMessage();
-                chatMessage.set("Message", "Looks like we've connected before! Hello again!");
-                chatMessage.set("Owner", host);
-                chatMessage.save(null, {
-                    success: function(chatMessage) {
-                        // Execute any logic that should take place after the object is saved.
-                        var query = new Parse.Query(ChatRoom);
-                        query.get(results[0].id, {
-                            success: function(chatRoom) {
-                                // The object was retrieved successfully.
-                                chatRoom.add("Messages", chatMessage);
-                                chatRoom.set("lastMessage", "Looks like we've connected before! Hello again!");
-                                chatRoom.set("lastMsgOwner", host);
-                                var date = new Date();
-                                chatRoom.set("lastUpdated", date);
-                                if (chatRoom.get("client")["id"] === host) {
-                                    chatRoom.set("promoterHasNew", true);
-                                } else {
-                                    chatRoom.set("clientHasNew", true);
-                                }
-                                chatRoom.save();
-
-                            },
-                            error: function(object, error) {
-                                // The object was not retrieved successfully.
-                                // error is a Parse.Error with an error code and message.
-
-                            }
-                        });
-
-                    },
-                    error: function(chatMessage, error) {
-                        // Execute any logic that should take place if the save fails.
-                        // error is a Parse.Error with an error code and message.
-                        console.log('Failed to create new object, with error code: ' + error.message);
-                    }
-                });
                 response.success("Already have a support chat room");
             }
         },
