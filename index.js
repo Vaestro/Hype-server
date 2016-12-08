@@ -23,7 +23,7 @@ var api = new ParseServer({
 
    // verbose: true,
     push:{
-        ios: [ 
+        ios: [
         {
             pfx: 'HypeDevCert.p12',
             bundleId:'com.hypelist.hype',
@@ -41,13 +41,20 @@ var api = new ParseServer({
 
 var dashboard = new ParseDashboard({
     "apps": [{
-        "serverURL": process.env.SERVER_URL || 'http://localhost:1337/parse',
+        "serverURL": process.env.SERVER_URL,
         "appId": process.env.APP_ID,
         "masterKey": process.env.MASTER_KEY,
         "javascriptKey": process.env.JAVASCRIPT_KEY,
         "restKey": process.env.REST_KEY,
         "appName": 'hype',
-        production: false
+        production: true
+    }, {
+      "serverURL": "http://localhost:1337/parse", // Self-hosted Parse Server
+      "appId": process.env.APP_ID,
+      "masterKey": process.env.MASTER_KEY,
+      "javascriptKey": process.env.JAVASCRIPT_KEY,
+      "restKey": process.env.REST_KEY,
+      "appName": 'hype',
     }],
     "users": [{
         "user": "hypeking",
