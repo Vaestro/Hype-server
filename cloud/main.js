@@ -551,15 +551,13 @@ Parse.Cloud.define('submitOfferForInquiry', function(request, response) {
             return Parse.Promise.error("There was an error submitting your inquiry offer. Please contact us through chat to resolve this issue as quick as possible.");
         });
     }).then(function(inquiryOffer) {
-        inquiry = new Inquiry();
-        inquiry.id = request.params.inquiryId;
         var guestlist = new Guestlist();
-        guestlist.id = inquiry.get("guestlistId")
+        guestlist.id = request.params.guestlistId
 
-        var queryForGuestlistInvites = new Parse.Query(Parse.GuestlistInvite).equalTo("Guestlist", guestlist);
+        var queryForGuestlistInvites = new Parse.Query("GuestlistInvite").equalTo("Guestlist", guestlist);
         return queryForGuestlistInvites.find().then(null, function(error) {
             console.log("There was an error searching for guests");
-            return Parse.Promise.error("There was an error in sending out the invites. Please Try again")
+            return Parse.Promise.error("There was an error when sending push notifications to guestlist. Please Try again")
         });
     }).then(function(guestlistInvites) {
 
