@@ -551,40 +551,40 @@ Parse.Cloud.define('submitOfferForInquiry', function(request, response) {
             return Parse.Promise.error("There was an error submitting your inquiry offer. Please contact us through chat to resolve this issue as quick as possible.");
         });
     }).then(function(inquiryOffer) {
-        var guestlist = new Guestlist();
-        guestlist.id = request.params.guestlistId
-
-        var queryForGuestlistInvites = new Parse.Query("GuestlistInvite").equalTo("Guestlist", guestlist);
-        return queryForGuestlistInvites.find().then(null, function(error) {
-            console.log("There was an error searching for guests");
-            return Parse.Promise.error("There was an error when sending push notifications to guestlist. Please Try again")
-        });
-    }).then(function(guestlistInvites) {
-
-        if (_.isEmpty(guestlistInvites)) {
-            return Parse.Promise.as([]);
-        }
-
-        var installationPromises = _.map(guestlistInvites, function(guestlistInvite) {
-
-            guest = new Parse.User();
-            guest.id = guestlistInvite.get("Guest").id;
-
-            queryInstallation.equalTo('deviceType', 'ios');
-            queryInstallation.equalTo("User", guest);
-
-            return Parse.Push.send({
-                where: queryInstallation,
-                data: {
-                    "alert": host.get("firstName") + ' has sent you an offer for ' + venue.get("name"),
-                    "badge": "Increment",
-                }
-            }, {
-                useMasterKey: true
-            });
-        });
-    }).then(function(inquiryOffer) {
-        console.log(inquiryOffer)
+    //     var guestlist = new Guestlist();
+    //     guestlist.id = request.params.guestlistId
+    //
+    //     var queryForGuestlistInvites = new Parse.Query("GuestlistInvite").equalTo("Guestlist", guestlist);
+    //     return queryForGuestlistInvites.find().then(null, function(error) {
+    //         console.log("There was an error searching for guests");
+    //         return Parse.Promise.error("There was an error when sending push notifications to guestlist. Please Try again")
+    //     });
+    // }).then(function(guestlistInvites) {
+    //
+    //     if (_.isEmpty(guestlistInvites)) {
+    //         return Parse.Promise.as([]);
+    //     }
+    //
+    //     var installationPromises = _.map(guestlistInvites, function(guestlistInvite) {
+    //
+    //         guest = new Parse.User();
+    //         guest.id = guestlistInvite.get("Guest").id;
+    //
+    //         queryInstallation.equalTo('deviceType', 'ios');
+    //         queryInstallation.equalTo("User", guest);
+    //
+    //         return Parse.Push.send({
+    //             where: queryInstallation,
+    //             data: {
+    //                 "alert": host.get("firstName") + ' has sent you an offer for ' + venue.get("name"),
+    //                 "badge": "Increment",
+    //             }
+    //         }, {
+    //             useMasterKey: true
+    //         });
+    //     });
+    // }).then(function(inquiryOffer) {
+    //     console.log(inquiryOffer)
         response.success(inquiryOffer);
     }, function(error) {
         response.error(error);
