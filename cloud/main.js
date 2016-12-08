@@ -584,6 +584,7 @@ Parse.Cloud.define('submitOfferForInquiry', function(request, response) {
             });
         });
     }).then(function(inquiryOffer) {
+        console.log(inquiryOffer)
         response.success(inquiryOffer);
     }, function(error) {
         response.error(error);
