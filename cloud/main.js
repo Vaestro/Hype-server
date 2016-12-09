@@ -551,6 +551,28 @@ Parse.Cloud.define('submitOfferForInquiry', function(request, response) {
             return Parse.Promise.error("There was an error submitting your inquiry offer. Please contact us through chat to resolve this issue as quick as possible.");
         });
     }).then(function(inquiryOffer) {
+        var queryForInquiry = new Parse.Query("Inquiry")
+            .equalTo('objectId', request.params.inquiryId)
+            .include('offers');
+        return queryForInquiry.first().then(function(inquiry) {
+            var offers = inquiry.get('offers')
+            if (offers.length < 1) {
+                offers = [inquiryOffer]
+                inquiry.set('offers', offers)
+
+            } else {
+                offers.push(inquiryOffer)
+                inquiry.set('offers', offers)
+            }
+            return inquiry.save().then(null, function(error) {
+                console.log('Saving inquiry failed. Error: ' + JSON.stringify(error));
+                return Parse.Promise.error("There was an error submitting your inquiry offer. Please contact us through chat to resolve this issue as quick as possible.");
+            });
+        }, function(error) {
+            console.log("There was an error fetching the inquiry data");
+            return Parse.Promise.error("There was an error when fetching inquiry data. Please Try again")
+        });
+    }).then(function(inquiry) {
         var guestlist = new Guestlist();
         guestlist.id = request.params.guestlistId
 
