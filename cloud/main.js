@@ -228,9 +228,8 @@ Parse.Cloud.define('sendPushNotification', function(request, response) {
     return Parse.Push.send({
         where: queryInstallation,
         data: {
-            alert: "New Alert!",
-            badge: "Increment",
-            notificationText: message
+            alert: message,
+            badge: "Increment"
         }
     }, {
         useMasterKey: true
