@@ -232,6 +232,8 @@ Parse.Cloud.define('sendPushNotification', function(request, response) {
             badge: "Increment",
             notificationText: message
         }
+    }, {
+        useMasterKey: true
     });
 });
 /**
