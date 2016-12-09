@@ -553,15 +553,15 @@ Parse.Cloud.define('submitOfferForInquiry', function(request, response) {
     }).then(function(inquiryOffer) {
         var queryForInquiry = new Parse.Query("Inquiry")
             .equalTo('objectId', request.params.inquiryId)
-            .include('offers');
+            .include('Offers');
         return queryForInquiry.first().then(function(inquiry) {
-            var offers = inquiry.get('offers')
+            var offers = inquiry.get('Offers')
             if (offers === undefined || offers.length == 0) {
                 offers = [inquiryOffer]
-                inquiry.set('offers', offers)
+                inquiry.set('Offers', offers)
             } else {
                 offers.push(inquiryOffer)
-                inquiry.set('offers', offers)
+                inquiry.set('Offers', offers)
             }
             return inquiry.save().then(null, function(error) {
                 console.log('Saving inquiry failed. Error: ' + JSON.stringify(error));
