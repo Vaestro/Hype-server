@@ -214,7 +214,26 @@ Parse.Cloud.define('sendOutInvitations', function(request, response) {
     })
 });
 
+Parse.Cloud.define('sendPushNotification', function(request, response) {
+    var recipientId = request.params.recipientId
+    var message = request.params.message
 
+    queryInstallation.equalTo('deviceType', 'ios');
+    queryInstallation.equalTo("User", {
+        "__type": "Pointer",
+        "className": "_User",
+        "objectId": recipientId
+    });
+
+    return Parse.Push.send({
+        where: queryInstallation,
+        data: {
+            alert: "New Alert!",
+            badge: "Increment",
+            notificationText: message
+        }
+    });
+});
 /**
  * a purchase is verified and then the credits are updated, followed by the creation of a purchased perk store item, and followed up
  * by an email
