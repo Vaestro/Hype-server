@@ -556,10 +556,9 @@ Parse.Cloud.define('submitOfferForInquiry', function(request, response) {
             .include('offers');
         return queryForInquiry.first().then(function(inquiry) {
             var offers = inquiry.get('offers')
-            if (offers.length < 1) {
+            if (offers === undefined || offers.length == 0) {
                 offers = [inquiryOffer]
                 inquiry.set('offers', offers)
-
             } else {
                 offers.push(inquiryOffer)
                 inquiry.set('offers', offers)
